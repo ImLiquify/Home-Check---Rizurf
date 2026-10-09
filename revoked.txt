@@ -1,0 +1,2 @@
+# HomeCheck removed devices: paste one machine code per line below, then commit.
+# That computer locks the next time HomeCheck opens. Delete the line to give access back.
