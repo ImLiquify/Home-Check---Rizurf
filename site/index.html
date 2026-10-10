@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HomeCheck: inspection reports in minutes</title>
+<meta name="description" content="Turn your home-inspection photos and videos into a finished Excel report: Summary page, Record of Finding, photos and formatting, done for you.">
+<style>
+  :root {
+    --bg: #F1F5F9; --card: #FFFFFF; --border: #E2E8F0; --text: #0F172A; --muted: #64748B;
+    --primary: #0F766E; --primary-hover: #115E59; --primary-soft: #CCFBF1; --dark: #134E4A;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header { background: var(--card); border-bottom: 3px solid var(--primary); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { font-weight: 700; font-size: 20px; color: var(--dark); text-decoration: none; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;
+         border: 1px solid var(--primary); transition: background .15s, color .15s; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-ghost { background: var(--card); color: var(--primary); }
+  .btn-ghost:hover { background: var(--primary-soft); }
+  .btn:focus-visible { outline: 3px solid var(--dark); outline-offset: 2px; }
+  .hero { padding: 72px 20px 56px; }
+  .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 0 0 16px; max-width: 760px; }
+  .hero p { font-size: 19px; color: var(--muted); max-width: 640px; margin: 0 0 28px; }
+  .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  section { padding: 48px 0; }
+  h2 { font-size: 28px; margin: 0 0 24px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .step-num { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+              background: var(--primary-soft); color: var(--dark); font-weight: 700; margin-bottom: 10px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); }
+  .plans { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
+  .plan.featured { border: 2px solid var(--primary); }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; padding: 3px 10px;
+         border-radius: 99px; background: var(--primary); color: #fff; margin-bottom: 10px; }
+  .price { font-size: 34px; font-weight: 700; margin: 4px 0 2px; }
+  .price small { font-size: 15px; color: var(--muted); font-weight: 400; }
+  ul.feat { list-style: none; padding: 0; margin: 18px 0 24px; }
+  ul.feat li { padding: 6px 0 6px 28px; position: relative; border-top: 1px solid var(--border); }
+  ul.feat li::before { content: "✓"; position: absolute; left: 4px; color: var(--primary); font-weight: 700; }
+  ul.feat li.no { color: var(--muted); }
+  ul.feat li.no::before { content: "–"; color: var(--muted); }
+  .plan .btn { width: 100%; text-align: center; }
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { font-weight: 600; cursor: pointer; }
+  details p { color: var(--muted); margin: 10px 0 0; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<!-- ======= EDIT THESE (search for "EDIT") ======= -->
+<!-- EDIT: product name appears in <title>, header, hero and footer. Prices + Buy links are in the Pricing section. -->
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#">HomeCheck</a>
+    <a class="btn btn-ghost" href="#pricing">Pricing</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>Inspection reports in minutes, not hours.</h1>
+    <p>Point HomeCheck at your inspection photos and videos, type each defect once, and get the finished Excel report:
+       Summary page, Record of Finding, photos and formatting, done for you.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#pricing">Buy HomeCheck</a>
+      <a class="btn btn-ghost" href="https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip">Download</a>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="grid">
+        <div class="card"><span class="step-num">1</span><h3>Pick your folder</h3>
+          <p>One subfolder per room, photos and videos inside. HomeCheck loads everything in order.</p></div>
+        <div class="card"><span class="step-num">2</span><h3>Type the defects</h3>
+          <p>Big preview, zoom, videos play in the app. Press Enter to save and jump to the next item.</p></div>
+        <div class="card"><span class="step-num">3</span><h3>Generate the report</h3>
+          <p>One click builds the Summary and Record of Finding with every photo placed and formatted.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Pricing</h2>
+      <p style="color:var(--muted);margin-top:-12px">One-time purchase. One licence key per computer, emailed to you instantly.</p>
+      <div class="grid plans">
+        <div class="card plan">
+          <h3>Lite</h3>
+          <div class="price">RM 49 <small>/ computer</small></div><!-- EDIT: Lite price -->
+          <ul class="feat">
+            <li>Load rooms, photos and videos</li>
+            <li>Type defects fast</li>
+            <li>Plain Excel list of all findings</li>
+            <li class="no">Formatted report with photos</li>
+            <li class="no">Summary page and auto check date</li>
+            <li class="no">Photo zoom and in-app video</li>
+          </ul>
+          <a class="btn btn-ghost" href="BUY_LITE_URL">Buy Lite</a><!-- EDIT: Lemon Squeezy checkout link for Lite -->
+        </div>
+        <div class="card plan featured">
+          <span class="tag">MOST POPULAR</span>
+          <h3>Pro</h3>
+          <div class="price">RM 149 <small>/ computer</small></div><!-- EDIT: Pro price -->
+          <ul class="feat">
+            <li>Everything in Lite</li>
+            <li>Full formatted report with photos</li>
+            <li>Summary page, filled in automatically</li>
+            <li>Check date read from your photos</li>
+            <li>Zoom into photos, play videos in the app</li>
+          </ul>
+          <a class="btn btn-primary" href="BUY_PRO_URL">Buy Pro</a><!-- EDIT: Lemon Squeezy checkout link for Pro -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Questions</h2>
+      <details><summary>How do I install it?</summary>
+        <p>Download, unzip, and double-click <b>Install HomeCheck</b>. It adds a Desktop shortcut and opens the app.
+           Paste the licence key from your purchase email and you're done.</p></details>
+      <details><summary>Can I use one licence on two computers?</summary>
+        <p>No: each key activates one computer. Buying several gives you one key per computer.</p></details>
+      <details><summary>Can I upgrade from Lite to Pro later?</summary>
+        <p>Yes. Buy Pro, then click <b>Upgrade to Pro</b> in the app and enter the new key.</p></details>
+      <details><summary>Does it need the internet?</summary>
+        <p>Only to activate, and at least once every 14 days to stay active. Your photos never leave your computer.</p></details>
+      <details><summary>What do I need?</summary>
+        <p>A Windows 10 or 11 PC. Reports open in Excel and can be imported into Google Sheets.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© HomeCheck. Questions: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></div>
+</footer>
+</body>
+</html>
