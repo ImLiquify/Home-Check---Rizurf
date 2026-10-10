@@ -5,202 +5,349 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HomeCheck: inspection reports in minutes</title>
 <meta name="description" content="Turn your home-inspection photos and videos into a finished Excel report: Summary page, Record of Finding, photos and formatting, done for you.">
+<link rel="canonical" href="https://imliquify.github.io/Home-Check---Rizurf/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="HomeCheck: inspection reports in minutes">
+<meta property="og:description" content="Photos in, finished Excel inspection report out. Try Pro free for 48 hours.">
+<meta property="og:url" content="https://imliquify.github.io/Home-Check---Rizurf/">
+<meta property="og:image" content="https://imliquify.github.io/Home-Check---Rizurf/img/report-pro.webp">
+<meta name="theme-color" content="#0F766E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='56' fill='%230F766E'/%3E%3Cpath fill='%23fff' transform='translate(40 36) scale(.69)' d='M240,208H224V136l2.34,2.34A8,8,0,0,0,237.66,127L139.31,28.68a16,16,0,0,0-22.62,0L18.34,127a8,8,0,0,0,11.32,11.31L32,136v72H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16Zm-88,0H104V160a4,4,0,0,1,4-4h40a4,4,0,0,1,4,4Z'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="img/report-pro.webp" as="image">
 <style>
+  @font-face { font-family: "Geist"; src: url("fonts/geist.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+  /* Brand teal kept from the app. Light and dark share one set of tokens. */
   :root {
-    --bg: #F1F5F9; --card: #FFFFFF; --border: #E2E8F0; --text: #0F172A; --muted: #64748B;
-    --primary: #0F766E; --primary-hover: #115E59; --primary-soft: #CCFBF1; --dark: #134E4A;
+    --bg: #F6F8F9; --surface: #FFFFFF; --surface-2: #EEF3F3; --line: #DCE3E6;
+    --text: #0E1A1F; --muted: #52626A; --accent: #0F766E; --accent-hover: #115E59;
+    --accent-ink: #FFFFFF; --accent-soft: #D9F2EE; --ok: #0F766E; --err: #B42318;
+    --shadow: 0 1px 2px rgb(15 118 110 / .06), 0 12px 32px -12px rgb(15 60 60 / .18);
+    --r-card: 10px; --r-ctl: 8px;
+    color-scheme: light;
   }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1215; --surface: #121B1F; --surface-2: #17242A; --line: #24343B;
+      --text: #E7EEF0; --muted: #9BB0B7; --accent: #2BB3A3; --accent-hover: #3CC6B6;
+      --accent-ink: #062320; --accent-soft: #123A36; --ok: #3CC6B6; --err: #F97066;
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -16px rgb(0 0 0 / .6);
+      color-scheme: dark;
+    }
+  }
+
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--text);
-         font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
-  header { background: var(--card); border-bottom: 3px solid var(--primary); }
-  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-  .brand { font-weight: 700; font-size: 20px; color: var(--dark); text-decoration: none; }
-  .btn { display: inline-block; padding: 12px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;
-         border: 1px solid var(--primary); transition: background .15s, color .15s; }
-  .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: var(--primary-hover); }
-  .btn-ghost { background: var(--card); color: var(--primary); }
-  .btn-ghost:hover { background: var(--primary-soft); }
-  .btn:focus-visible { outline: 3px solid var(--dark); outline-offset: 2px; }
-  .hero { padding: 72px 20px 56px; }
-  .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 0 0 16px; max-width: 760px; }
-  .hero p { font-size: 19px; color: var(--muted); max-width: 640px; margin: 0 0 28px; }
-  .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  section { padding: 48px 0; }
-  h2 { font-size: 28px; margin: 0 0 24px; }
-  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-  .step-num { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
-              background: var(--primary-soft); color: var(--dark); font-weight: 700; margin-bottom: 10px; }
-  .card h3 { margin: 0 0 6px; font-size: 18px; }
-  .card p { margin: 0; color: var(--muted); }
-  .plans { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
-  .plan.featured { border: 2px solid var(--primary); }
-  .tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; padding: 3px 10px;
-         border-radius: 99px; background: var(--primary); color: #fff; margin-bottom: 10px; }
-  .price { font-size: 34px; font-weight: 700; margin: 4px 0 2px; }
-  .price small { font-size: 15px; color: var(--muted); font-weight: 400; }
-  ul.feat { list-style: none; padding: 0; margin: 18px 0 24px; }
-  ul.feat li { padding: 6px 0 6px 28px; position: relative; border-top: 1px solid var(--border); }
-  ul.feat li::before { content: "✓"; position: absolute; left: 4px; color: var(--primary); font-weight: 700; }
-  ul.feat li.no { color: var(--muted); }
-  ul.feat li.no::before { content: "–"; color: var(--muted); }
-  .plan .btn { width: 100%; text-align: center; }
-  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
-  summary { font-weight: 600; cursor: pointer; }
-  details p { color: var(--muted); margin: 10px 0 0; }
-  .two { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
-  .qr { width: 100%; max-width: 280px; display: block; margin: 8px auto; border-radius: 8px; border: 1px solid var(--border); }
-  label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 4px; }
-  input, select { width: 100%; padding: 10px 12px; font: inherit; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
-  input:focus, select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
-  form .btn { margin-top: 16px; width: 100%; cursor: pointer; font: inherit; font-weight: 600; }
-  .msg { margin-top: 12px; font-weight: 600; } .msg.ok { color: var(--primary); } .msg.err { color: #B91C1C; }
-  ol.steps { padding-left: 20px; color: var(--muted); } ol.steps li { margin: 4px 0; }
-  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
-  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+         font: 16px/1.6 "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; display: block; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+  .ic { width: 1.15em; height: 1.15em; flex: none; fill: currentColor; }
+  h1, h2, h3 { letter-spacing: -.02em; line-height: 1.15; margin: 0; }
+  h2 { font-size: clamp(26px, 3.2vw, 36px); font-weight: 650; }
+  .lead { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }
+
+  /* buttons: one radius, tactile press */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+         padding: 12px 20px; border-radius: var(--r-ctl); font: inherit; font-weight: 600; text-decoration: none;
+         border: 1px solid var(--accent); cursor: pointer; transition: background .2s, color .2s, transform .1s; }
+  .btn:active { transform: translateY(1px) scale(.99); }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-ghost { background: transparent; color: var(--accent); }
+  .btn-ghost:hover { background: var(--accent-soft); }
+  .btn[disabled] { opacity: .6; cursor: progress; }
+
+  /* header */
+  header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent);
+           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); text-decoration: none; }
+  .brand .mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--r-ctl); background: var(--accent); color: var(--accent-ink); }
+  nav { display: flex; align-items: center; gap: 24px; }
+  nav a.link { color: var(--muted); text-decoration: none; font-weight: 500; }
+  nav a.link:hover { color: var(--text); }
+  nav .btn { padding: 8px 14px; }
+
+  /* hero: text left, real report right */
+  .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; padding: 64px 24px 80px; }
+  .hero h1 { font-size: clamp(34px, 4.2vw, 52px); font-weight: 700; }
+  .hero p { font-size: 19px; color: var(--muted); margin: 20px 0 32px; max-width: 34ch; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .shot { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
+  .shot img { width: 100%; height: auto; background: #fff; }
+  .hero .shot { transform: rotate(-1.2deg); }
+
+  /* how it works: steps list beside the summary page */
+  .how { display: grid; grid-template-columns: .9fr 1.1fr; gap: 56px; align-items: center; padding: 88px 24px; border-top: 1px solid var(--line); }
+  .steps { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 24px; }
+  .steps li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
+  .steps .i { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-ctl); background: var(--accent-soft); color: var(--accent); }
+  .steps h3 { font-size: 18px; font-weight: 600; }
+  .steps p { margin: 4px 0 0; color: var(--muted); }
+  .how figcaption, .plan figcaption { font-size: 14px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--line); }
+
+  /* pricing: two plans, Pro emphasised, each shows its real output */
+  .pricing { padding: 88px 0; background: var(--surface-2); }
+  .plans { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; margin-top: 40px; align-items: start; }
+  .plan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 28px; }
+  .plan.pro { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+  .plan h3 { font-size: 22px; font-weight: 650; display: flex; align-items: center; gap: 10px; }
+  .badge { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .price { font-size: 40px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 0; }
+  .price small { font-size: 15px; font-weight: 400; color: var(--muted); }
+  .plan .shot { margin: 20px 0; box-shadow: none; }
+  .feat { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; }
+  .feat li { display: flex; gap: 10px; align-items: flex-start; }
+  .feat li .ic { margin-top: 4px; color: var(--accent); }
+  .feat li.no { color: var(--muted); }
+  .feat li.no .ic { color: var(--muted); }
+  .plan .btn { width: 100%; }
+
+  /* buy: QR left, form right */
+  .buy { display: grid; grid-template-columns: .85fr 1.15fr; gap: 48px; align-items: start; padding: 88px 24px; }
+  .pay { display: grid; gap: 20px; }
+  .pay ol { margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 6px; }
+  .qr { width: 100%; max-width: 300px; border-radius: var(--r-card); border: 1px solid var(--line); background: #fff; padding: 12px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 28px; box-shadow: var(--shadow); }
+
+  /* forms */
+  form { display: grid; gap: 16px; }
+  .field { display: grid; gap: 6px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  label { font-weight: 600; font-size: 14px; }
+  .hint { font-size: 13px; color: var(--muted); }
+  input, select { width: 100%; padding: 11px 12px; font: inherit; color: var(--text); background: var(--bg);
+                  border: 1px solid var(--line); border-radius: var(--r-ctl); }
+  input::placeholder { color: var(--muted); opacity: 1; }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+  form .btn { width: 100%; margin-top: 4px; }
+  .msg { min-height: 1.4em; font-weight: 600; margin: 0; } .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
+
+  /* trial: full-width band */
+  .trial { background: var(--accent); color: var(--accent-ink); }
+  .trial .wrap { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; padding-top: 72px; padding-bottom: 72px; }
+  .trial h2 { color: var(--accent-ink); }
+  .trial .lead { color: var(--accent-ink); opacity: .85; }
+  .trial .dl { color: var(--accent-ink); font-weight: 600; display: inline-flex; gap: 8px; align-items: center; margin-top: 20px; }
+  .trial .panel { color: var(--text); box-shadow: none; }
+
+  /* faq */
+  .faq { padding: 88px 24px; }
+  .faq details, .faq h2 { max-width: 820px; }
+  details { border-bottom: 1px solid var(--line); }
+  summary { list-style: none; cursor: pointer; padding: 20px 0; font-weight: 600; font-size: 17px; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary .ic { color: var(--muted); transition: transform .2s; }
+  details[open] summary .ic { transform: rotate(180deg); }
+  details p { margin: 0 0 20px; color: var(--muted); max-width: 65ch; }
+
+  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 28px; padding-bottom: 40px; }
+
+  /* entry motion: hero only, communicates load order */
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { animation: rise .7s cubic-bezier(.16, 1, .3, 1) both; }
+    .rise.d2 { animation-delay: .12s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; } .btn, summary .ic { transition: none; }
+  }
+
+  /* mobile: everything to one column */
+  @media (max-width: 860px) {
+    .hero, .how, .plans, .buy, .trial .wrap { grid-template-columns: 1fr; gap: 32px; }
+    .hero { padding-top: 40px; padding-bottom: 56px; }
+    .hero .shot { transform: none; }
+    .how, .buy, .faq { padding-top: 56px; padding-bottom: 56px; }
+    .pricing { padding: 56px 0; }
+    nav a.link { display: none; }
+    .row2 { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-<!-- ======= EDIT THESE (search for "EDIT") ======= -->
-<!-- EDIT: product name appears in <title>, header, hero and footer. Prices + Buy links are in the Pricing section. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Phosphor Icons (MIT), regular weight -->
+  <symbol id="i-house" viewBox="0 0 256 256"><path d="M240,208H224V136l2.34,2.34A8,8,0,0,0,237.66,127L139.31,28.68a16,16,0,0,0-22.62,0L18.34,127a8,8,0,0,0,11.32,11.31L32,136v72H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM48,120l80-80,80,80v88H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48Zm96,88H112V160h32Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 256 256"><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208h0a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 256 256"><path d="M227.32,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H216a8,8,0,0,0,0-16H115.32l112-112A16,16,0,0,0,227.32,73.37ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.69,147.32,64l24-24L216,84.69Z"/></symbol>
+  <symbol id="i-xls" viewBox="0 0 256 256"><path d="M156,208a8,8,0,0,1-8,8H120a8,8,0,0,1-8-8V152a8,8,0,0,1,16,0v48h20A8,8,0,0,1,156,208ZM92.65,145.49a8,8,0,0,0-11.16,1.86L68,166.24,54.51,147.35a8,8,0,1,0-13,9.3L58.17,180,41.49,203.35a8,8,0,0,0,13,9.3L68,193.76l13.49,18.89a8,8,0,0,0,13-9.3L77.83,180l16.68-23.35A8,8,0,0,0,92.65,145.49Zm98.94,25.82c-4-1.16-8.14-2.35-10.45-3.84-1.25-.82-1.23-1-1.12-1.9a4.54,4.54,0,0,1,2-3.67c4.6-3.12,15.34-1.72,19.82-.56a8,8,0,0,0,4.07-15.48c-2.11-.55-21-5.22-32.83,2.76a20.58,20.58,0,0,0-8.95,14.95c-2,15.88,13.65,20.41,23,23.11,12.06,3.49,13.12,4.92,12.78,7.59-.31,2.41-1.26,3.33-2.15,3.93-4.6,3.06-15.16,1.55-19.54.35A8,8,0,0,0,173.93,214a60.63,60.63,0,0,0,15.19,2c5.82,0,12.3-1,17.49-4.46a20.81,20.81,0,0,0,9.18-15.23C218,179,201.48,174.17,191.59,171.31ZM40,112V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88v24a8,8,0,1,1-16,0V96H152a8,8,0,0,1-8-8V40H56v72a8,8,0,0,1-16,0ZM160,80h28.68L160,51.31Z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 256 256"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 256 256"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></symbol>
+</svg>
 
 <header>
   <div class="wrap">
-    <a class="brand" href="#">HomeCheck</a>
-    <a class="btn btn-ghost" href="#pricing">Pricing</a>
+    <a class="brand" href="#top"><span class="mark"><svg class="ic"><use href="#i-house"/></svg></span>HomeCheck</a>
+    <nav aria-label="Main">
+      <a class="link" href="#how">How it works</a>
+      <a class="link" href="#pricing">Pricing</a>
+      <a class="btn btn-primary" href="#trial">Start free trial</a>
+    </nav>
   </div>
 </header>
 
-<main>
-  <div class="wrap hero">
-    <h1>Inspection reports in minutes, not hours.</h1>
-    <p>Point HomeCheck at your inspection photos and videos, type each defect once, and get the finished Excel report:
-       Summary page, Record of Finding, photos and formatting, done for you.</p>
-    <div class="actions">
-      <a class="btn btn-primary" href="#pricing">Buy HomeCheck</a>
-      <a class="btn btn-ghost" href="#trial">Free 48-hour trial</a>
-    </div>
-  </div>
-
-  <section>
-    <div class="wrap">
-      <h2>How it works</h2>
-      <div class="grid">
-        <div class="card"><span class="step-num">1</span><h3>Pick your folder</h3>
-          <p>One subfolder per room, photos and videos inside. HomeCheck loads everything in order.</p></div>
-        <div class="card"><span class="step-num">2</span><h3>Type the defects</h3>
-          <p>Big preview, zoom, videos play in the app. Press Enter to save and jump to the next item.</p></div>
-        <div class="card"><span class="step-num">3</span><h3>Generate the report</h3>
-          <p>One click builds the Summary and Record of Finding with every photo placed and formatted.</p></div>
+<main id="top">
+  <section class="wrap hero">
+    <div class="rise">
+      <h1>Inspection reports in minutes, not hours.</h1>
+      <p>Type each defect once. HomeCheck places every photo and builds the finished Excel report for you.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#trial">Start free trial</a>
+        <a class="btn btn-ghost" href="#pricing">Pricing</a>
       </div>
     </div>
+    <figure class="shot rise d2" style="margin:0">
+      <img src="img/report-pro.webp" width="1120" height="820"
+           alt="Record of Finding page made by HomeCheck Pro: two defect photos side by side, each with its description above">
+    </figure>
   </section>
 
-  <section id="pricing">
+  <section class="wrap how" id="how">
+    <div>
+      <h2>Three steps from site visit to report</h2>
+      <ol class="steps">
+        <li><span class="i"><svg class="ic"><use href="#i-folder"/></svg></span>
+          <div><h3>Pick your inspection folder</h3><p>One subfolder per room. Photos and videos load in order, ready to caption.</p></div></li>
+        <li><span class="i"><svg class="ic"><use href="#i-pencil"/></svg></span>
+          <div><h3>Type the defects</h3><p>Big preview with zoom. Press Enter to save and jump to the next photo.</p></div></li>
+        <li><span class="i"><svg class="ic"><use href="#i-xls"/></svg></span>
+          <div><h3>Generate the Excel report</h3><p>Summary page and Record of Finding, filled in and formatted in one click.</p></div></li>
+      </ol>
+    </div>
+    <figure class="shot" style="margin:0">
+      <img src="img/report-summary.webp" width="1030" height="446" loading="lazy"
+           alt="Summary page made by HomeCheck Pro listing each room and its defect, with check date and inspector filled in">
+      <figcaption>The Summary page, filled in from your captions. Check date is read from the photos.</figcaption>
+    </figure>
+  </section>
+
+  <section class="pricing" id="pricing">
     <div class="wrap">
-      <h2>Pricing</h2>
-      <p style="color:var(--muted);margin-top:-12px">One-time purchase. One licence key per computer, emailed to you once your payment is confirmed. Not sure yet? <a href="#trial">Try Pro free for 48 hours.</a></p>
-      <div class="grid plans">
-        <div class="card plan">
+      <h2>One-time price. One key per computer.</h2>
+      <p class="lead">Your key is emailed once we confirm your payment. Not sure yet? <a href="#trial">Try Pro free for 48 hours.</a></p>
+      <div class="plans">
+        <div class="plan">
           <h3>Lite</h3>
-          <div class="price">RM 199 <small>/ computer</small></div><!-- EDIT: Lite price -->
+          <div class="price">RM 199 <small>/ computer</small></div>
+          <figure class="shot" style="margin:20px 0">
+            <img src="img/report-lite.webp" width="960" height="740" loading="lazy" alt="Lite output: a plain sheet with each defect's text above its photo">
+            <figcaption>Lite output: text above each photo, no layout.</figcaption>
+          </figure>
           <ul class="feat">
-            <li>Load rooms, photos and videos</li>
-            <li>Type defects fast</li>
-            <li>Basic Excel: defect text above each photo</li>
-            <li class="no">Formatted report layout</li>
-            <li class="no">Summary page and auto check date</li>
-            <li class="no">Photo zoom and in-app video</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Load rooms, photos and videos</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Basic Excel with defect text above each photo</li>
+            <li class="no"><svg class="ic"><use href="#i-minus"/></svg>Formatted report layout</li>
+            <li class="no"><svg class="ic"><use href="#i-minus"/></svg>Summary page and automatic check date</li>
+            <li class="no"><svg class="ic"><use href="#i-minus"/></svg>Photo zoom and in-app video</li>
           </ul>
-          <a class="btn btn-ghost" href="#buy" onclick="pick('lite')">Buy Lite</a>
+          <a class="btn btn-ghost" href="#buy" data-plan="lite">Buy Lite</a>
         </div>
-        <div class="card plan featured">
-          <span class="tag">MOST POPULAR</span>
-          <h3>Pro</h3>
-          <div class="price">RM 599 <small>/ computer</small></div><!-- EDIT: Pro price -->
+        <div class="plan pro">
+          <h3>Pro <span class="badge">Recommended</span></h3>
+          <div class="price">RM 599 <small>/ computer</small></div>
+          <figure class="shot" style="margin:20px 0">
+            <img src="img/report-summary.webp" width="1030" height="446" loading="lazy" alt="Pro output: the formatted Summary page">
+            <figcaption>Pro output: the full report, ready to send to your client.</figcaption>
+          </figure>
           <ul class="feat">
-            <li>Everything in Lite</li>
-            <li>Full formatted report, ready to send</li>
-            <li>Summary page, filled in automatically</li>
-            <li>Check date read from your photos</li>
-            <li>Zoom into photos, play videos in the app</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Everything in Lite</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Full formatted report, ready to send</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Summary page, filled in automatically</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Check date read from your photos</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Zoom into photos, play videos in the app</li>
           </ul>
-          <a class="btn btn-primary" href="#buy" onclick="pick('pro')">Buy Pro</a>
+          <a class="btn btn-primary" href="#buy" data-plan="pro">Buy Pro</a>
         </div>
       </div>
     </div>
   </section>
 
-
-  <section id="buy">
-    <div class="wrap">
-      <h2>Buy with Touch 'n Go</h2>
-      <div class="two">
-        <div class="card">
-          <ol class="steps">
-            <li>Scan this QR in your TNG eWallet and pay the plan price.</li>
-            <li>Fill in the form with your TNG transaction reference.</li>
-            <li>We confirm the payment and email your licence key, usually the same day.</li>
-          </ol>
-          <img class="qr" src="tng-qr.png" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
+  <section class="wrap buy" id="buy">
+    <div class="pay">
+      <h2>Pay with Touch 'n Go</h2>
+      <ol>
+        <li>Scan the QR in your TNG eWallet and pay the plan price.</li>
+        <li>Fill in the form with your TNG transaction reference.</li>
+        <li>We confirm the payment and email your licence key, usually the same day.</li>
+      </ol>
+      <img class="qr" src="tng-qr.png" width="300" height="300" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
+    </div>
+    <div class="panel">
+      <form id="buy-f" data-action="order">
+        <div class="row2">
+          <div class="field"><label for="buy-f-name">Full name</label><input id="buy-f-name" name="name" required autocomplete="name"></div>
+          <div class="field"><label for="buy-f-company">Company <span class="hint">(optional)</span></label><input id="buy-f-company" name="company" autocomplete="organization"></div>
         </div>
-        <div class="card"><form id="buy-f" onsubmit="return send(event,'order')">
-          <label for="buy-f-name">Full name</label><input id="buy-f-name" name="name" required autocomplete="name">
-          <label for="buy-f-email">Email (your key is sent here)</label><input id="buy-f-email" name="email" type="email" required autocomplete="email">
-          <label for="buy-f-company">Company (optional)</label><input id="buy-f-company" name="company" autocomplete="organization">
-          <label for="buy-f-plan">Plan</label><select id="buy-f-plan" name="plan"><option value="pro">Pro (RM 599)</option><option value="lite">Lite (RM 199)</option></select>
-          <label for="buy-f-ref">TNG transaction reference</label><input id="buy-f-ref" name="ref" required placeholder="From your TNG receipt">
-          <button class="btn btn-primary" type="submit">I have paid, send my key</button>
-          <div class="msg" role="status" aria-live="polite"></div>
-        </form></div>
-      </div>
+        <div class="field"><label for="buy-f-email">Email</label><input id="buy-f-email" name="email" type="email" required autocomplete="email">
+          <span class="hint">Your licence key is sent here.</span></div>
+        <div class="field"><label for="buy-f-plan">Plan</label><select id="buy-f-plan" name="plan"><option value="pro">Pro (RM 599)</option><option value="lite">Lite (RM 199)</option></select></div>
+        <div class="field"><label for="buy-f-ref">TNG transaction reference</label><input id="buy-f-ref" name="ref" required>
+          <span class="hint">Shown on your TNG payment receipt.</span></div>
+        <button class="btn btn-primary" type="submit">I have paid, send my key</button>
+        <p class="msg" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </section>
 
-  <section id="trial">
+  <section class="trial" id="trial">
     <div class="wrap">
-      <h2>Free 48-hour trial</h2>
-      <div class="two">
-        <div class="card"><p>Every Pro feature for 48 hours on one computer. No payment needed.</p>
-          <p style="margin-top:12px"><a class="btn btn-ghost" href="https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip">Download HomeCheck</a></p></div>
-        <div class="card"><form id="trial-f" onsubmit="return send(event,'trial')">
-          <label for="trial-f-name">Full name</label><input id="trial-f-name" name="name" required autocomplete="name">
-          <label for="trial-f-email">Email (your key is sent here)</label><input id="trial-f-email" name="email" type="email" required autocomplete="email">
-          <label for="trial-f-company">Company (optional)</label><input id="trial-f-company" name="company" autocomplete="organization">
+      <div>
+        <h2>Try Pro free for 48 hours</h2>
+        <p class="lead">Every Pro feature on one computer. No payment, no card.</p>
+        <a class="dl" href="https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip"><svg class="ic"><use href="#i-dl"/></svg>Download HomeCheck for Windows</a>
+      </div>
+      <div class="panel">
+        <form id="trial-f" data-action="trial">
+          <div class="row2">
+            <div class="field"><label for="trial-f-name">Full name</label><input id="trial-f-name" name="name" required autocomplete="name"></div>
+            <div class="field"><label for="trial-f-company">Company <span class="hint">(optional)</span></label><input id="trial-f-company" name="company" autocomplete="organization"></div>
+          </div>
+          <div class="field"><label for="trial-f-email">Email</label><input id="trial-f-email" name="email" type="email" required autocomplete="email">
+            <span class="hint">Your trial key is sent here.</span></div>
           <button class="btn btn-primary" type="submit">Email me a trial key</button>
-          <div class="msg" role="status" aria-live="polite"></div>
-        </form></div>
+          <p class="msg" role="status" aria-live="polite"></p>
+        </form>
       </div>
     </div>
   </section>
 
-  <section>
-    <div class="wrap">
-      <h2>Questions</h2>
-      <details><summary>How do I install it?</summary>
-        <p>Download, unzip, and double-click <b>Install HomeCheck</b>. It adds a Desktop shortcut and opens the app.
-           Paste the licence key from your email and you're done.</p></details>
-      <details><summary>Can I use one licence on two computers?</summary>
-        <p>No: each key activates one computer. Buying several gives you one key per computer.</p></details>
-      <details><summary>Can I upgrade from Lite to Pro later?</summary>
-        <p>Yes. Buy Pro, then click <b>Upgrade to Pro</b> in the app and enter the new key.</p></details>
-      <details><summary>Does it need the internet?</summary>
-        <p>Only to activate, and at least once every 14 days to stay active. Your photos never leave your computer.</p></details>
-      <details><summary>What do I need?</summary>
-        <p>A Windows 10 or 11 PC. Reports open in Excel and can be imported into Google Sheets.</p></details>
-    </div>
+  <section class="wrap faq">
+    <h2>Questions</h2>
+    <details><summary>How do I install it?<svg class="ic"><use href="#i-down"/></svg></summary>
+      <p>Download, unzip, and double-click <b>Install HomeCheck</b>. It adds a Desktop shortcut and opens the app. Paste the licence key from your email and you're done.</p></details>
+    <details><summary>Can I use one licence on two computers?<svg class="ic"><use href="#i-down"/></svg></summary>
+      <p>No. Each key activates one computer. Buying several gives you one key per computer.</p></details>
+    <details><summary>Can I upgrade from Lite to Pro later?<svg class="ic"><use href="#i-down"/></svg></summary>
+      <p>Yes. Buy Pro, then click <b>Upgrade to Pro</b> in the app and enter the new key.</p></details>
+    <details><summary>Does it need the internet?<svg class="ic"><use href="#i-down"/></svg></summary>
+      <p>Only to activate, and at least once every 14 days to stay active. Your photos never leave your computer.</p></details>
+    <details><summary>What do I need?<svg class="ic"><use href="#i-down"/></svg></summary>
+      <p>A Windows 10 or 11 PC. Reports open in Excel and can be imported into Google Sheets.</p></details>
   </section>
 </main>
 
 <footer>
-  <div class="wrap">© HomeCheck. Questions: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></div>
+  <div class="wrap">
+    <span>© 2026 HomeCheck. Payments by Touch 'n Go eWallet.</span>
+    <span>Questions: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></span>
+  </div>
 </footer>
+
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye3D5vpUQ9OGdogUl9ayOGtfGpGYrDSSNH1WrPQaOj4GM9Zds4MNT0qzVckpPzrTi1ow/exec";  // EDIT: your Apps Script Web app URL (ends in /exec)
-function pick(plan){ document.getElementById('buy-f-plan').value = plan; }
+document.querySelectorAll('[data-plan]').forEach(a => a.addEventListener('click', () => {
+  document.getElementById('buy-f-plan').value = a.dataset.plan;
+}));
+document.querySelectorAll('form[data-action]').forEach(f => f.addEventListener('submit', e => send(e, f.dataset.action)));
 async function send(e, action){
   e.preventDefault();
   const f = e.target, msg = f.querySelector('.msg'), btn = f.querySelector('button');
@@ -214,7 +361,7 @@ async function send(e, action){
     msg.textContent = action === 'trial' ? 'Done! Check your email (and spam folder) for your trial key.'
                                          : 'Thanks! We\'ll check your payment and email your key shortly.';
   } catch (_) { msg.className = 'msg err'; msg.textContent = 'Could not send. Please email mohdkaiser1806@gmail.com.'; }
-  btn.disabled = false; return false;
+  btn.disabled = false;
 }
 </script>
 </body>
