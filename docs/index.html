@@ -202,6 +202,10 @@
   .err { color: var(--err); font-size: 13px; font-weight: 600; min-height: 0; }
   .msg { font-weight: 600; margin: 0; min-height: 1.4em; } .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
 
+  .agree { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; margin-top: 18px; font-size: 14px; color: var(--muted); }
+  .agree input { width: 20px; height: 20px; min-height: 0; margin: 2px 0 0; accent-color: var(--accent); }
+  .agree label { cursor: pointer; }
+
   /* trial */
   .trial { background: var(--accent); color: var(--accent-ink); }
   .trial .wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; padding-top: 96px; padding-bottom: 96px; }
@@ -312,8 +316,8 @@
       </div>
     </div>
     <div class="stage" aria-label="Pages from a report made with Unitly">
-      <figure class="shot back"><img src="img/report-pro.webp" width="1120" height="820" alt="Record of Finding page: two defect photos side by side, each with its description"></figure>
-      <figure class="shot front"><img src="img/report-summary.webp" width="1030" height="446" alt="Summary page listing each room and its defect"></figure>
+      <figure class="shot back"><img src="img/report-pro.webp" width="1053" height="665" alt="Record of Finding page: two defect photos side by side, each with its description"></figure>
+      <figure class="shot front"><img src="img/report-summary.webp" width="1051" height="644" alt="Summary page listing each room and its defect"></figure>
     </div>
   </section>
 
@@ -337,7 +341,7 @@
             <h3>Summary page, filled in for you</h3>
             <p>Every defect is listed by room on the Summary page, with inspector, property type and check date filled in.</p>
           </div>
-          <figure class="shot"><img src="img/report-summary.webp" width="1030" height="446" loading="lazy" alt="Summary page with rooms and defects"></figure>
+          <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Summary page with rooms and defects"></figure>
         </div>
         <div class="cell c-b reveal" style="--d:.08s">
           <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-camera-plus"/></svg></span>
@@ -374,7 +378,7 @@
         </ol>
       </div>
       <figure class="shot reveal" style="--d:.1s">
-        <img src="img/report-pro.webp" width="1120" height="820" loading="lazy" alt="Record of Finding page with photos and descriptions">
+        <img src="img/report-pro.webp" width="1053" height="665" loading="lazy" alt="Record of Finding page with photos and descriptions">
         <figcaption>Record of Finding: two photos per row, the description above each one.</figcaption>
       </figure>
     </div>
@@ -413,7 +417,7 @@
         <div class="plan pro reveal" style="--d:.08s">
           <h3>Pro <span class="badge">Recommended</span></h3>
           <div class="price">RM 599 <small>/ computer</small></div>
-          <figure class="shot"><img src="img/report-summary.webp" width="1030" height="446" loading="lazy" alt="Pro output: the formatted Summary page"><figcaption>Pro output: the full report, ready to send to your client.</figcaption></figure>
+          <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Pro output: the formatted Summary page"><figcaption>Pro output: the full report, ready to send to your client.</figcaption></figure>
           <ul class="feat">
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Lite</li>
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Full formatted report, ready to send</li>
@@ -485,6 +489,9 @@
               <div class="summary-row"><span>Amount paid</span><b data-amount>RM 599</b></div>
               <div class="summary-row"><span>Key sent to</span><b data-email></b></div>
             </div>
+            <div class="agree"><input type="checkbox" id="buy-terms" name="terms" value="v1" aria-describedby="buy-terms-e">
+              <label for="buy-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>. Unitly is owned by Mohamed Kaiser; I receive a licence to use it and will not copy or recreate it.</label></div>
+            <span class="err" id="buy-terms-e"></span>
             <p class="msg" role="status" aria-live="polite"></p>
             <div class="nav-row"><button class="btn btn-ghost" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Submit order</button></div>
           </div>
@@ -521,6 +528,8 @@
             <div class="field"><label class="l" for="trial-company">Company <span class="hint">(optional)</span></label><input id="trial-company" name="company" autocomplete="organization"></div>
           </div>
           <div class="field"><label class="l" for="trial-email">Work email</label><input id="trial-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="agree"><input type="checkbox" id="trial-terms" name="terms" value="v1" required>
+            <label for="trial-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>.</label></div>
           <button class="btn btn-primary" type="submit">Email me a trial key</button>
           <p class="msg" role="status" aria-live="polite"></p>
         </form>
@@ -564,7 +573,7 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Unitly. Payments by Touch 'n Go eWallet.</span>
+    <span>© 2026 Mohamed Kaiser. Unitly is owned and developed by Mohamed Kaiser. All rights reserved. <a href="terms.html">Terms</a></span>
     <span>Contact: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></span>
   </div>
 </footer>
@@ -621,7 +630,9 @@ function valid(n) {
   }
   if (n === 3) {
     const ok = check('buy-ref', $('#buy-ref').value.trim().length >= 6, 'Please enter the full reference number from your TNG receipt.');
-    if (!ok) $('#buy-ref').focus(); return ok;
+    const t = check('buy-terms', $('#buy-terms').checked, 'Please agree to the Terms to place your order.');
+    if (!ok) $('#buy-ref').focus(); else if (!t) $('#buy-terms').focus();
+    return ok && t;
   }
   return true;
 }

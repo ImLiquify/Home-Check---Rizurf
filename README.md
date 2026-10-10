@@ -1,8 +1,7 @@
-# HomeCheck
+# Unitly
 
-Inspection reports in minutes: turns your home-inspection photos and videos into a finished Excel report.
+Website for Unitly: https://unitly.pages.dev/
 
-**Download:** [HomeCheck-Setup.zip](https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip)
-(Windows 10/11). Unzip, double-click **Install HomeCheck**, then enter the licence key from your purchase email.
-
-`site/` holds the sales website.
+Unitly is proprietary software. Copyright (c) 2026 Mohamed Kaiser. All rights reserved.
+Use is governed by the [Terms and Licence Agreement](https://unitly.pages.dev/terms.html).
+Downloads are sent by email to licence holders only.
