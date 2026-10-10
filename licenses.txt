@@ -1,0 +1,2 @@
+# HomeCheck approved computers: one line each ->  MACHINE-CODE  pro|lite   # optional note
+# Add a line to activate. Change pro/lite to switch version. Delete the line to remove access.

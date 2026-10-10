@@ -1,10 +1,13 @@
 # HomeCheck access list
 
-`revoked.txt` lists computers whose HomeCheck access has been removed.
+`licenses.txt` lists the computers allowed to use HomeCheck, and which version each gets.
 
-**Remove a device:** open `revoked.txt` → pencil icon → add the machine code on a new line → Commit.
-The computer locks the next time HomeCheck opens (GitHub can take ~5 minutes to update).
+    B23A6A84-39C0DDE5-515893E7-C90C1E32  pro    # Ali
+    7F00AC11-0D9E44B1-2A6C5E90-11BB0C3D  lite   # Siti
 
-**Restore access:** delete that line and commit.
+- **Approve a computer:** open `licenses.txt` → pencil icon → add a line → Commit changes.
+  Their HomeCheck unlocks by itself (GitHub can take up to ~5 minutes to update).
+- **Switch version:** change `pro` / `lite` on their line.
+- **Remove access:** delete their line.
 
-Lines starting with `#` are notes and are ignored.
+Text after `#` is a note and is ignored. Tip: use initials rather than full names, since this repo is public.
