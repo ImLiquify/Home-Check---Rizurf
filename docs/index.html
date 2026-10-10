@@ -51,6 +51,14 @@
   details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
   summary { font-weight: 600; cursor: pointer; }
   details p { color: var(--muted); margin: 10px 0 0; }
+  .two { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+  .qr { width: 100%; max-width: 280px; display: block; margin: 8px auto; border-radius: 8px; border: 1px solid var(--border); }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 4px; }
+  input, select { width: 100%; padding: 10px 12px; font: inherit; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+  input:focus, select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+  form .btn { margin-top: 16px; width: 100%; cursor: pointer; font: inherit; font-weight: 600; }
+  .msg { margin-top: 12px; font-weight: 600; } .msg.ok { color: var(--primary); } .msg.err { color: #B91C1C; }
+  ol.steps { padding-left: 20px; color: var(--muted); } ol.steps li { margin: 4px 0; }
   footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
   @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
 </style>
@@ -73,7 +81,7 @@
        Summary page, Record of Finding, photos and formatting, done for you.</p>
     <div class="actions">
       <a class="btn btn-primary" href="#pricing">Buy HomeCheck</a>
-      <a class="btn btn-ghost" href="https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip">Download</a>
+      <a class="btn btn-ghost" href="#trial">Free 7-day trial</a>
     </div>
   </div>
 
@@ -94,7 +102,7 @@
   <section id="pricing">
     <div class="wrap">
       <h2>Pricing</h2>
-      <p style="color:var(--muted);margin-top:-12px">One-time purchase. One licence key per computer, emailed to you instantly.</p>
+      <p style="color:var(--muted);margin-top:-12px">One-time purchase. One licence key per computer, emailed to you once your payment is confirmed. Not sure yet? <a href="#trial">Try it free for 7 days.</a></p>
       <div class="grid plans">
         <div class="card plan">
           <h3>Lite</h3>
@@ -107,7 +115,7 @@
             <li class="no">Summary page and auto check date</li>
             <li class="no">Photo zoom and in-app video</li>
           </ul>
-          <a class="btn btn-ghost" href="BUY_LITE_URL">Buy Lite</a><!-- EDIT: Lemon Squeezy checkout link for Lite -->
+          <a class="btn btn-ghost" href="#buy" onclick="pick('lite')">Buy Lite</a>
         </div>
         <div class="card plan featured">
           <span class="tag">MOST POPULAR</span>
@@ -120,8 +128,51 @@
             <li>Check date read from your photos</li>
             <li>Zoom into photos, play videos in the app</li>
           </ul>
-          <a class="btn btn-primary" href="BUY_PRO_URL">Buy Pro</a><!-- EDIT: Lemon Squeezy checkout link for Pro -->
+          <a class="btn btn-primary" href="#buy" onclick="pick('pro')">Buy Pro</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="buy">
+    <div class="wrap">
+      <h2>Buy with Touch 'n Go</h2>
+      <div class="two">
+        <div class="card">
+          <ol class="steps">
+            <li>Scan this QR in your TNG eWallet and pay the plan price.</li>
+            <li>Fill in the form with your TNG transaction reference.</li>
+            <li>We confirm the payment and email your licence key, usually the same day.</li>
+          </ol>
+          <img class="qr" src="tng-qr.png" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
+        </div>
+        <div class="card"><form id="buy-f" onsubmit="return send(event,'order')">
+          <label for="buy-f-name">Full name</label><input id="buy-f-name" name="name" required autocomplete="name">
+          <label for="buy-f-email">Email (your key is sent here)</label><input id="buy-f-email" name="email" type="email" required autocomplete="email">
+          <label for="buy-f-company">Company (optional)</label><input id="buy-f-company" name="company" autocomplete="organization">
+          <label for="buy-f-plan">Plan</label><select id="buy-f-plan" name="plan"><option value="pro">Pro (RM 149)</option><option value="lite">Lite (RM 49)</option></select>
+          <label for="buy-f-ref">TNG transaction reference</label><input id="buy-f-ref" name="ref" required placeholder="From your TNG receipt">
+          <button class="btn btn-primary" type="submit">I have paid, send my key</button>
+          <div class="msg" role="status" aria-live="polite"></div>
+        </form></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trial">
+    <div class="wrap">
+      <h2>Free 7-day trial</h2>
+      <div class="two">
+        <div class="card"><p>Every Pro feature for 7 days on one computer. No payment needed.</p>
+          <p style="margin-top:12px"><a class="btn btn-ghost" href="https://github.com/ImLiquify/Home-Check---Rizurf/releases/latest/download/HomeCheck-Setup.zip">Download HomeCheck</a></p></div>
+        <div class="card"><form id="trial-f" onsubmit="return send(event,'trial')">
+          <label for="trial-f-name">Full name</label><input id="trial-f-name" name="name" required autocomplete="name">
+          <label for="trial-f-email">Email (your key is sent here)</label><input id="trial-f-email" name="email" type="email" required autocomplete="email">
+          <label for="trial-f-company">Company (optional)</label><input id="trial-f-company" name="company" autocomplete="organization">
+          <button class="btn btn-primary" type="submit">Email me a trial key</button>
+          <div class="msg" role="status" aria-live="polite"></div>
+        </form></div>
       </div>
     </div>
   </section>
@@ -131,7 +182,7 @@
       <h2>Questions</h2>
       <details><summary>How do I install it?</summary>
         <p>Download, unzip, and double-click <b>Install HomeCheck</b>. It adds a Desktop shortcut and opens the app.
-           Paste the licence key from your purchase email and you're done.</p></details>
+           Paste the licence key from your email and you're done.</p></details>
       <details><summary>Can I use one licence on two computers?</summary>
         <p>No: each key activates one computer. Buying several gives you one key per computer.</p></details>
       <details><summary>Can I upgrade from Lite to Pro later?</summary>
@@ -147,5 +198,24 @@
 <footer>
   <div class="wrap">© HomeCheck. Questions: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></div>
 </footer>
+<script>
+const SCRIPT_URL = "";  // EDIT: your Apps Script Web app URL (ends in /exec)
+function pick(plan){ document.getElementById('buy-f-plan').value = plan; }
+async function send(e, action){
+  e.preventDefault();
+  const f = e.target, msg = f.querySelector('.msg'), btn = f.querySelector('button');
+  const data = Object.fromEntries(new FormData(f)); data.action = action;
+  btn.disabled = true; msg.className = 'msg'; msg.textContent = 'Sending…';
+  try {
+    if (!SCRIPT_URL) throw 0;
+    // no-cors + text/plain: Apps Script accepts it without a CORS preflight; the reply can't be read, so a sent request = success
+    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(data)});
+    f.reset(); msg.className = 'msg ok';
+    msg.textContent = action === 'trial' ? 'Done! Check your email (and spam folder) for your trial key.'
+                                         : 'Thanks! We\'ll check your payment and email your key shortly.';
+  } catch (_) { msg.className = 'msg err'; msg.textContent = 'Could not send. Please email mohdkaiser1806@gmail.com.'; }
+  btn.disabled = false; return false;
+}
+</script>
 </body>
 </html>
