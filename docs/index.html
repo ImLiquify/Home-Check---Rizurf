@@ -17,298 +17,444 @@
 <meta property="og:image:alt" content="Unitly: inspection photos in, finished report out">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://unitly-1lb.pages.dev/og.png">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F6F8F9">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1215">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F7F4">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0C1214">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="img/report-pro.webp" as="image">
+<link rel="preload" href="img/photo-crack.webp" as="image">
 <style>
   @font-face { font-family: "Geist"; src: url("fonts/geist.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
 
+  /* Report-sheet system: paper, ink, one accent. Square corners, rules instead of boxes, no shadows. */
   :root {
-    --bg: #F6F8F9; --surface: #FFFFFF; --surface-2: #EDF3F3; --line: #DCE3E6;
-    --text: #0E1A1F; --muted: #4F5F67; --accent: #0F766E; --accent-hover: #115E59;
-    --accent-ink: #FFFFFF; --accent-soft: #D9F2EE; --ok: #0F766E; --err: #B42318;
-    --shadow: 0 1px 2px rgb(15 118 110 / .06), 0 14px 36px -14px rgb(15 60 60 / .22);
-    --r-card: 12px; --r-ctl: 8px;
-    --ease: cubic-bezier(.16, 1, .3, 1); --ease-out: cubic-bezier(.23, 1, .32, 1);
+    --bg: #F7F7F4; --field: #FFFFFF; --ink: #0E1A1F; --muted: #55636A; --rule: rgb(14 26 31 / .16);
+    --accent: #0F766E; --accent-hover: #115E59; --accent-ink: #FFFFFF; --ok: #0F766E; --err: #B42318;
+    --mono: ui-monospace, "SF Mono", Consolas, monospace;
+    --ease-out: cubic-bezier(.23, 1, .32, 1);
+    --gut: clamp(16px, 4vw, 40px);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0B1215; --surface: #121B1F; --surface-2: #101A1E; --line: #24343B;
-      --text: #E7EEF0; --muted: #9BB0B7; --accent: #2BB3A3; --accent-hover: #3CC6B6;
-      --accent-ink: #062320; --accent-soft: #123A36; --ok: #3CC6B6; --err: #F97066;
-      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 18px 44px -18px rgb(0 0 0 / .65);
+      --bg: #0C1214; --field: #11191C; --ink: #E8EEEF; --muted: #9AABB1; --rule: rgb(232 238 239 / .14);
+      --accent: #2BB3A3; --accent-hover: #3CC6B6; --accent-ink: #04201D; --ok: #3CC6B6; --err: #F97066;
       color-scheme: dark;
     }
   }
 
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; interpolate-size: allow-keywords; }
-  a, button, summary, label { touch-action: manipulation; }  /* no 300ms double-tap wait */
-  .btn, summary, .choose label { -webkit-user-select: none; user-select: none; }  /* long-press doesn't select control labels */
-  html, body { overflow-x: clip; }  /* nothing may widen the page sideways (rotated cards, animations) */
-  body { margin: 0; background: var(--bg); color: var(--text);
-         font: 16px/1.6 "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; interpolate-size: allow-keywords; }
+  html, body { overflow-x: clip; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 17px/1.6 "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  a, button, summary, label { touch-action: manipulation; }
   img { max-width: 100%; display: block; }
-  a { color: var(--accent); }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
-  .ic { width: 1.2em; height: 1.2em; flex: none; fill: currentColor; }
-  h1, h2, h3 { letter-spacing: -.02em; line-height: 1.15; margin: 0; text-wrap: balance; }
-  h2 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 650; }
-  .lead { color: var(--muted); max-width: 58ch; margin: 14px 0 0; font-size: 17px; }
-  .skip { position: absolute; left: -999px; } .skip:focus { left: 16px; top: 12px; z-index: 50; background: var(--surface); padding: 8px 12px; border-radius: var(--r-ctl); }
+  a { color: var(--accent); text-underline-offset: .18em; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gut); }
+  .ic { width: 1.1em; height: 1.1em; flex: none; fill: currentColor; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+  h2 { font-size: clamp(32px, 4.4vw, 56px); line-height: 1.02; letter-spacing: -.035em; }
+  h3 { font-size: 20px; line-height: 1.25; letter-spacing: -.015em; }
+  p { text-wrap: pretty; }
+  .lead { color: var(--muted); max-width: 52ch; margin: 18px 0 0; }
+  .label { font: 500 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .skip { position: absolute; left: -999px; } .skip:focus { left: 16px; top: 12px; z-index: 50; background: var(--bg); padding: 8px 12px; }
+  .g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-height: 44px;
-         padding: 11px 20px; border-radius: var(--r-ctl); font: inherit; font-weight: 600; text-decoration: none;
-         border: 1px solid var(--accent); cursor: pointer; transition: background-color .2s, border-color .2s, color .2s, transform .16s var(--ease-out), box-shadow .2s; }
+  /* buttons: square, solid; secondary is an outlined ink button */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: 48px;
+         padding: 12px 22px; border-radius: 0; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none;
+         border: 1px solid var(--accent); cursor: pointer; -webkit-user-select: none; user-select: none;
+         transition: background-color .15s, border-color .15s, color .15s, transform .16s var(--ease-out); }
   .btn:active { transform: scale(.97); }
-  .btn:focus-visible, a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .btn-primary { background: var(--accent); color: var(--accent-ink); }
-  .btn-ghost { background: transparent; color: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
   .btn[disabled] { opacity: .6; cursor: progress; }
   .btn .ic { transition: transform .2s var(--ease-out); }
 
   /* header */
-  header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 86%, transparent);
-           backdrop-filter: saturate(140%) blur(12px); -webkit-backdrop-filter: saturate(140%) blur(12px); border-bottom: 1px solid transparent; transition: border-color .2s; }
-  header.scrolled { border-bottom-color: var(--line); }
+  header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 90%, transparent);
+           backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--rule); }
   header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--text); text-decoration: none; letter-spacing: -.01em; }
-  .mark { width: 32px; height: 32px; display: block; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--ink); text-decoration: none; letter-spacing: -.02em; }
+  .mark { width: 28px; height: 28px; display: block; }
   nav { display: flex; align-items: center; gap: 28px; }
-  nav a.link { color: var(--muted); text-decoration: none; font-weight: 500; }
-  nav a.link { transition: color .15s; }
-  nav .btn { min-height: 38px; padding: 7px 14px; }
+  nav a.link { color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 500; transition: color .15s; }
+  nav .btn { min-height: 40px; padding: 8px 16px; font-size: 15px; }
 
-  /* hero */
-  .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; padding: 72px 24px 64px; }
-  .hero h1 { font-size: clamp(36px, 4.6vw, 56px); font-weight: 700; }
-  .hero h1 em { font-style: normal; color: var(--accent); }
-  .hero p { font-size: 19px; color: var(--muted); margin: 20px 0 32px; max-width: 40ch; }
+  /* hero reel: the stage pins under the header while scroll scrubs a mock of the app,
+     from choosing a folder to the finished report. Mock sizes are design px on a 1200x800 canvas, scaled to fit. */
+  .reel { position: relative; height: 640svh; }
+  .reel-stage { position: sticky; top: 64px; height: calc(100svh - 64px); overflow: hidden; }
+  .reel-copy { position: absolute; left: 0; right: 0; top: 0; padding-top: clamp(24px, 6vh, 80px); z-index: 1; }
+  .reel-copy h1 { font-size: clamp(40px, min(7.4vw, 11vh), 104px); line-height: .96; letter-spacing: -.05em; max-width: 11.5em; }
+  .reel-copy h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub { display: flex; justify-content: space-between; align-items: end; gap: 20px 48px; flex-wrap: wrap;
+              margin-top: clamp(20px, 4vh, 48px); padding-top: 18px; border-top: 2px solid var(--ink); }
+  .hero-sub p { margin: 0; font-size: 19px; max-width: 42ch; }
   .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  .stage { position: relative; padding: 0 0 40px 28px; }
-  .shot { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; margin: 0; }
-  .shot img { width: 100%; height: auto; background: #fff; }
-  .stage .back { transform: rotate(1.5deg); }
-  .stage .front { position: absolute; left: 0; bottom: 0; width: 64%; transform: rotate(-2.5deg); }
+  .reel-canvas { position: absolute; left: 50%; top: 50%; width: 1200px; height: 800px; pointer-events: none; }
+  .reel-steps { z-index: 2; }
 
-  /* facts strip */
-  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .facts div { display: flex; gap: 12px; align-items: center; padding: 22px 24px; color: var(--muted); font-weight: 500; }
-  .facts div + div { border-left: 1px solid var(--line); }
-  .facts .ic { color: var(--accent); width: 1.5em; height: 1.5em; }
+  /* kinetic type: words ride up through masks; blocks wipe in from the left; one full-bleed colour wipe between acts */
+  .m { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
+  .m > span { display: inline-block; }
+  .kin { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .kin > * { position: absolute; left: 0; right: 0; }
+  .k-intro { top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: .08em;
+             font-size: clamp(36px, min(7vw, 10vh), 112px); font-weight: 600; line-height: 1; letter-spacing: -.045em; }
+  .k-intro p { margin: 0; text-wrap: balance; }
+  .k2 { clip-path: inset(-20% 100% -20% 0); }
+  .k3 { color: var(--accent); opacity: 0; transform-origin: 0 60%; }
+  .k-stack { top: clamp(16px, 4vh, 40px); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .k-stack b { font-size: clamp(24px, min(3.6vw, 6vh), 56px); font-weight: 600; line-height: 1.05; letter-spacing: -.035em;
+               padding: .06em .28em .12em; background: var(--ink); color: var(--bg); clip-path: inset(0 100% 0 0); }
+  .k-stack b.hot { background: var(--accent); color: var(--accent-ink); }
+  .k-click { top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; gap: .22em; visibility: hidden;
+             font-size: clamp(56px, min(12vw, 17vh), 184px); font-weight: 700; line-height: 1; letter-spacing: -.055em; }
+  .k-click em { font-style: normal; color: var(--accent); }
+  .k-end { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 3; display: flex; flex-direction: column; justify-content: center;
+           align-items: flex-start; visibility: hidden; }
+  .k-big { margin: 0; font-size: clamp(52px, min(10.5vw, 15vh), 168px); font-weight: 700; line-height: .95; letter-spacing: -.055em; }
+  .k-big .m:last-child { color: var(--accent); }
+  .k-sub { margin: 22px 0 26px; font-size: clamp(17px, 2vw, 21px); color: var(--muted); max-width: 40ch; opacity: 0; }
+  .k-end .btn { opacity: 0; }
+  .wipe { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; background: var(--accent); transform: translateY(100%); visibility: hidden; }
+  .wipe-mark { display: flex; align-items: center; gap: .3em; color: var(--accent-ink); font-size: clamp(40px, 7vw, 96px); font-weight: 700; letter-spacing: -.04em; opacity: 0; }
+  .wipe-mark img { width: 1.05em; height: auto; }
+  .reel-steps { position: absolute; left: 0; right: 0; bottom: 14px; opacity: 0; }
+  .reel-steps ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 16px; }
+  .reel-steps li { position: relative; padding-top: 12px; color: var(--muted); font-size: 15px; font-weight: 500; transition: color .2s; }
+  .reel-steps li::before, .reel-steps li i { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--rule); }
+  .reel-steps li i { background: var(--accent); transform-origin: left; transform: scaleX(0); }
+  .reel-steps .label { margin-right: 8px; color: inherit; }
+  .reel-steps li.on { color: var(--ink); } .reel-steps li.on .label { color: var(--accent); }
+  .reel-now { display: none; margin: 8px 0 0; font-weight: 500; }
+  html:not(.js) .reel, .reel.still { height: auto; }
+  html:not(.js) .reel-stage { position: relative; height: auto; overflow: visible; }
+  html:not(.js) .reel-copy { position: relative; padding-bottom: 32px; }
+  html:not(.js) .reel-canvas, html:not(.js) .reel-steps, html:not(.js) .kin, html:not(.js) .k-end, html:not(.js) .wipe { display: none; }
+  .reel.still .reel-stage { position: relative; }
 
-  section { scroll-margin-top: 72px; }
-  .sec { padding: 104px 0; }
-  .sec-alt { background: var(--surface-2); }
+  /* the mock window: the real Pro app's colours, labels and layout */
+  .app { position: absolute; left: 50px; top: 40px; width: 1100px; height: 720px; display: flex; flex-direction: column;
+         background: #F1F5F9; color: #0F172A; font: 14px/1.4 "Segoe UI", system-ui, sans-serif; text-align: left;
+         border: 1px solid #CBD5E1; border-radius: 10px; overflow: hidden; will-change: transform;
+         box-shadow: 0 50px 90px -40px rgb(15 23 42 / .55); }
+  .app * { box-sizing: border-box; }
+  .a-title { height: 32px; flex: none; display: flex; align-items: center; gap: 8px; padding-left: 12px; background: #fff; font-size: 12px; }
+  .a-win { margin-left: auto; display: flex; }
+  .a-win svg { width: 46px; height: 32px; padding: 11px 18px; stroke: #0F172A; stroke-width: 1; fill: none; }
+  .a-head { height: 62px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: #fff; }
+  .a-brand { display: flex; align-items: center; gap: 10px; margin-right: 10px; font-size: 21px; font-weight: 600; }
+  .a-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 14px; background: #fff;
+           border: 1px solid #CBD5E1; border-radius: 3px; font-size: 13.5px; white-space: nowrap; }
+  .a-btn.on { background: #E2E8F0; border-color: #0F766E; }
+  .a-primary { background: #0F766E; border-color: #0F766E; color: #fff; font-weight: 600; }
+  .a-primary.on { background: #134E4A; border-color: #134E4A; }
+  .a-primary.off { background: #E2E8F0; border-color: #E2E8F0; color: #64748B; }
+  .a-path { font-size: 12.5px; color: #64748B; } .a-path.set { color: #000; }
+  .a-badge { margin-left: auto; padding: 4px 9px; background: #0F766E; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+  .a-accent { height: 3px; flex: none; background: #0F766E; }
+  .a-page { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; }
+  .a-card { background: #fff; border: 1px solid #E2E8F0; }
+  .a-details { flex: none; padding: 10px 16px 12px; }
+  .a-sec { font-size: 10.5px; font-weight: 600; letter-spacing: .05em; color: #64748B; }
+  .a-fields { display: flex; gap: 16px; margin-top: 6px; }
+  .a-fields > div { display: grid; gap: 3px; font-size: 12px; color: #64748B; }
+  .a-in { display: flex; align-items: center; justify-content: space-between; width: 150px; height: 30px; padding: 0 8px;
+          border: 1px solid #CBD5E1; color: #0F172A; font-size: 13px; }
+  .a-in.wide { width: 220px; }
+  .a-in.dd::after { content: ""; border: 4px solid transparent; border-top: 5px solid #64748B; margin-top: 5px; }
+  .a-date { display: flex; align-items: center; height: 30px; font-size: 13px; font-weight: 600; color: #0F172A; }
+  .a-body { flex: 1; min-height: 0; display: flex; gap: 12px; }
+  .a-left { width: 300px; flex: none; display: flex; flex-direction: column; padding: 10px 6px 10px 12px; }
+  .a-bar { height: 6px; margin: 7px 8px 3px 0; background: #E2E8F0; }
+  .a-bar i { display: block; height: 100%; background: #0F766E; transform-origin: left; transform: scaleX(0); }
+  .a-muted { font-size: 12px; color: #64748B; }
+  .a-tree { position: relative; margin-top: 10px; }
+  .a-sel { position: absolute; left: 0; right: 8px; top: 0; height: 40px; background: #CCFBF1; opacity: 0; }
+  .a-loc { position: relative; height: 30px; display: flex; align-items: center; padding-left: 4px; font-size: 13.5px; font-weight: 600; color: #134E4A; }
+  .a-item { position: relative; height: 40px; display: flex; align-items: center; gap: 8px; padding-left: 16px; font-size: 13px; white-space: nowrap; }
+  .a-th { width: 40px; height: 30px; flex: none; overflow: hidden; background: #E2E8F0; }
+  .a-th img { width: 40px; height: 30px; display: block; }
+  .a-th .zoom { width: 120px; height: 90px; max-width: none; }
+  .a-item .n { width: 14px; text-align: right; }
+  .a-item .tick { width: 12px; color: #0F766E; font-weight: 700; }
+  .a-legend { margin-top: auto; }
+  .a-right { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 14px 18px; }
+  .a-h { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .a-meta { margin-top: 2px; }
+  .a-view { position: relative; flex: 1; min-height: 0; margin-top: 10px; background: #1E293B; overflow: hidden; }
+  .a-empty { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; text-align: center; color: #CBD5E1; font-size: 13px; }
+  .a-photo { position: absolute; inset: 0; margin: auto; height: 100%; width: auto; max-width: 100%; opacity: 0; }
+  .a-hint { margin-top: 6px; }
+  .a-def { margin-top: 12px; font-size: 13px; font-weight: 600; }
+  .a-input { display: flex; align-items: center; height: 38px; margin-top: 4px; padding: 0 10px; border: 1px solid #CBD5E1; background: #fff; font-size: 15px; white-space: pre; }
+  .a-input.focus { border-color: #0F766E; box-shadow: inset 0 0 0 1px #0F766E; }
+  .a-caret { width: 1.5px; height: 20px; margin-left: 1px; background: #0F172A; opacity: 0; }
+  .a-caret.on { opacity: 1; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .a-nav { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .a-keys { margin-left: auto; transition: color .2s; } .a-keys.flash { color: #0F766E; font-weight: 600; }
+  .a-dialog { position: absolute; left: 350px; top: 270px; width: 400px; background: #fff; border: 1px solid #CBD5E1; font-size: 13px;
+              box-shadow: 0 30px 60px -24px rgb(15 23 42 / .5); opacity: 0; }
+  .a-dt { display: flex; justify-content: space-between; align-items: center; height: 32px; padding: 0 14px; font-size: 12px; }
+  .a-db { display: flex; gap: 14px; padding: 10px 20px 18px; }
+  .a-db .q { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #0F766E; color: #fff; font-weight: 700; }
+  .a-db p { margin: 0; line-height: 1.5; }
+  .a-df { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: #F1F5F9; }
+  .a-df .a-btn { min-width: 84px; }
+  .page { position: absolute; margin: 0; background: #fff; border: 1px solid #CBD5E1; opacity: 0;
+          box-shadow: 0 40px 70px -36px rgb(15 23 42 / .55); }
+  .page img { width: 100%; height: auto; display: block; }
+  .page-sum { left: 520px; top: 36px; width: 630px; }
+  .page-rec { left: 570px; top: 372px; width: 600px; }
+  .ptag { position: absolute; padding: 7px 12px 6px; background: #0E1A1F; color: #F7F7F4; font: 500 14px/1.3 var(--mono);
+          text-transform: uppercase; letter-spacing: .06em; clip-path: inset(0 100% 0 0); }
+  .ptag-sum { left: 520px; top: 2px; }
+  .ptag-rec { right: 30px; top: 756px; }
+  /* in-app cursor, click ripple and callouts (app coordinates, so they ride the window's transform) */
+  .cur { position: absolute; left: 0; top: 0; width: 22px; height: 30px; z-index: 6; opacity: 0; overflow: visible; transform-origin: 1px 1px; }
+  .cur path { fill: #0F172A; stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
+  .ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; z-index: 5; border: 2px solid #0F766E; border-radius: 50%; opacity: 0; }
+  .co-svg { position: absolute; left: 0; top: 0; z-index: 4; overflow: visible; pointer-events: none; }
+  .co-svg path { fill: none; stroke: #0F766E; stroke-width: 2; }
+  .co-svg circle { fill: #0F766E; opacity: 0; }
+  .co-tag { position: absolute; left: 0; top: 0; z-index: 4; transform: translateY(-50%); padding: 7px 12px; background: #0F766E; color: #fff;
+            font: 600 15px/1.2 "Geist", system-ui, sans-serif; white-space: nowrap; clip-path: inset(0 100% 0 0); }
+  .co-tag.r { transform: translate(-100%, -50%); clip-path: inset(0 0 0 100%); }
 
-  /* bento */
-  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
-  .cell { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 28px; overflow: hidden; position: relative; }
-  .cell h3 { font-size: 20px; font-weight: 650; margin-top: 14px; }
-  .cell p { color: var(--muted); margin: 8px 0 0; }
-  .cell .badge-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-ctl); background: var(--accent-soft); color: var(--accent); }
-  .c-a { grid-column: span 4; display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: center; }
-  .c-b { grid-column: span 2; }
-  .c-c { grid-column: span 2; }
-  .c-d { grid-column: span 2; background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-  .c-d p { color: var(--accent-ink); opacity: .85; } .c-d .badge-ic { background: rgb(255 255 255 / .16); color: var(--accent-ink); }
-  .c-e { grid-column: span 2; }
-  .c-a .shot { box-shadow: none; }
-  .kbd { display: inline-block; font: 600 13px/1 ui-monospace, Consolas, monospace; padding: 4px 8px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; background: var(--bg); }
+  /* spec sheet */
+  .spec { display: grid; grid-template-columns: repeat(4, 1fr); margin: 72px 0 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+  .spec div { padding: 18px 20px 20px 0; }
+  .spec div + div { padding-left: 20px; border-left: 1px solid var(--rule); }
+  .spec dt { margin-bottom: 6px; }
+  .spec dd { margin: 0; font-weight: 500; }
 
-  /* how: steps with a progress rail */
-  .how { display: grid; grid-template-columns: .95fr 1.05fr; gap: 64px; align-items: center; }
-  .steps { list-style: none; padding: 0; margin: 36px 0 0; position: relative; }
-  .steps::before, .steps::after { content: ""; position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: var(--line); }
-  .steps::after { background: var(--accent); transform-origin: top; transform: scaleY(var(--p, 0)); transition: transform 1.1s var(--ease); }
-  .steps.in { --p: 1; }
-  .steps li { display: grid; grid-template-columns: 44px 1fr; gap: 18px; padding: 0 0 30px; position: relative; z-index: 1; }
-  .steps li:last-child { padding-bottom: 0; }
-  .steps .num { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); color: var(--accent); font-weight: 700; }
-  .steps h3 { font-size: 19px; font-weight: 650; padding-top: 9px; }
-  .steps p { margin: 4px 0 0; color: var(--muted); }
-  figcaption { font-size: 14px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--line); background: var(--surface); }
+  /* section head: index number + name on a heavy rule */
+  .sec { padding-top: clamp(80px, 10vw, 136px); }
+  .sh { display: flex; gap: 20px; padding-top: 12px; margin-bottom: clamp(32px, 4vw, 56px); border-top: 2px solid var(--ink); }
+  .sh .no { color: var(--accent); }
 
-  /* roadmap */
-  .road { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 48px; border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: var(--surface); }
-  .road > div { padding: 28px; }
-  .road > div + div { border-left: 1px solid var(--line); }
-  .road h3 { font-size: 19px; font-weight: 650; margin-top: 14px; }
-  .road p { color: var(--muted); margin: 8px 0 0; }
-  .pill { display: inline-block; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
-  .pill.now { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  /* features: sticky heading, ruled list */
+  .feat-intro { grid-column: 1 / 5; align-self: start; position: sticky; top: 96px; }
+  .rows { grid-column: 6 / -1; list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  .rows li { display: grid; grid-template-columns: 56px 1fr; gap: 6px 16px; padding: 24px 0 26px; border-bottom: 1px solid var(--rule); }
+  .rows .n { font: 500 13px/1.9 var(--mono); color: var(--accent); }
+  .rows p { grid-column: 2; margin: 0; color: var(--muted); max-width: 54ch; }
+  .kbd { display: inline-block; font: 600 14px/1 var(--mono); padding: 4px 8px 3px; border: 1px solid var(--ink); border-bottom-width: 3px; vertical-align: 2px; }
 
-  /* pricing */
-  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; align-items: stretch; }
-  .plan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 30px; transition: translate .3s var(--ease-out), box-shadow .3s; }
-  .plan.best { border: 2px solid var(--accent); position: relative; z-index: 1; margin: -14px -8px; padding: 43px 37px;  /* bigger box, same text size */
-               box-shadow: var(--shadow), 0 0 0 6px var(--accent-soft), 0 24px 60px -20px var(--accent); }
-  .plan .save { margin: 6px 0 0; color: var(--accent); font-weight: 600; }
-  .plan h3 { font-size: 22px; font-weight: 650; display: flex; align-items: center; gap: 10px; }
-  .badge { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
-  .price { font-size: 42px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 0; }
-  .price small { font-size: 15px; font-weight: 400; color: var(--muted); white-space: nowrap; }
-  .plan .shot { margin: 20px 0; box-shadow: none; }
-  .feat { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; }
-  .feat li { display: flex; gap: 10px; align-items: flex-start; }
-  .feat li .ic { margin-top: 3px; color: var(--accent); }
-  .feat li.no, .feat li.no .ic { color: var(--muted); }
-  .plan { display: flex; flex-direction: column; }
-  .plan .btn { width: 100%; margin-top: auto; }  /* buttons line up along the bottom of the three cards */
-  .plan.best .badge, .choose .badge { background: var(--accent); color: var(--accent-ink); }
+  /* how: three columns between vertical rules */
+  .how h2 { max-width: 16ch; }
+  .steps { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
+  .steps li { padding: 20px 28px 8px 0; }
+  .steps li + li { padding-left: 28px; border-left: 1px solid var(--rule); }
+  .steps .big { display: block; font-size: clamp(64px, 7vw, 104px); font-weight: 300; line-height: 1; letter-spacing: -.05em; color: var(--accent); margin-bottom: 28px; }
+  .steps p { margin: 8px 0 0; color: var(--muted); }
+
+  /* roadmap: status table */
+  .road { list-style: none; margin: 48px 0 0; padding: 0; border-top: 1px solid var(--ink); }
+  .road li { display: grid; grid-template-columns: 3fr 4fr 5fr; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .road p { margin: 0; color: var(--muted); }
+  .status::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 10px; border: 1.5px solid currentColor; vertical-align: 0; }
+  .status.now { color: var(--accent); } .status.now::before { background: currentColor; }
+
+  /* pricing: comparison table */
+  .ptable { width: 100%; border-collapse: collapse; margin-top: 48px; }
+  .ptable th, .ptable td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--rule); vertical-align: top; font-weight: 400; }
+  .ptable thead th, .ptable thead td { vertical-align: bottom; padding-top: 22px; padding-bottom: 18px; border-bottom: 2px solid var(--ink); }
+  .ptable th[scope=row] { color: var(--muted); width: 31%; padding-left: 0; }
+  .ptable .best { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  .ptable thead .best { box-shadow: inset 0 4px 0 var(--accent); }
+  .pname { display: block; font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+  .tag { display: block; font: 600 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 6px; }
+  .amt { display: block; font-size: clamp(30px, 3.2vw, 42px); font-weight: 600; letter-spacing: -.04em; line-height: 1.1; }
+  .per { color: var(--muted); font-size: 15px; }
+  .ptable .ic { color: var(--accent); width: 1.25em; height: 1.25em; vertical-align: -3px; }
+  .ptable .no .ic { color: var(--muted); }
+  .ptable tfoot td { border-bottom: 0; padding-top: 20px; }
+  .ptable tfoot .btn { width: 100%; }
 
   /* checkout */
-  .checkout { max-width: 880px; margin: 48px auto 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
-  .stepper { display: grid; grid-template-columns: repeat(4, 1fr); list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); background: var(--surface-2); }
-  .stepper li { display: flex; align-items: center; gap: 10px; padding: 16px 20px; color: var(--muted); font-weight: 600; font-size: 14px; position: relative; }
-  .stepper li::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
-  .stepper .n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2px solid currentColor; font-size: 13px; flex: none; }
-  .stepper li.cur, .stepper li.done { color: var(--text); }
-  .stepper li.cur::after, .stepper li.done::after { transform: scaleX(1); }
-  .stepper li.cur .n { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .stepper li.done .n { border-color: var(--accent); color: var(--accent); }
-  .pane { padding: 32px; }
+  .checkout { max-width: 840px; margin-top: 48px; }
+  .stepper { display: grid; grid-template-columns: repeat(4, 1fr); list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+  .stepper li { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 14px 0; color: var(--muted); font-weight: 500; font-size: 15px; position: relative; }
+  .stepper li::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease-out); }
+  .stepper .n { font: 500 12px var(--mono); }
+  .stepper li.cur, .stepper li.done { color: var(--ink); }
+  .stepper li.cur::after { transform: scaleX(1); }
+  .stepper li.cur .n, .stepper li.done .n { color: var(--accent); }
+  .pane { padding: 36px 0 0; }
   .pane[hidden] { display: none; }
   .pane.enter { animation: pane .3s var(--ease-out); }
   @keyframes pane { from { opacity: 0; transform: translateX(var(--dx, 16px)); } }
   #buy-f.back { --dx: -16px; }
-  .pane h3 { font-size: 22px; font-weight: 650; }
-  .pane .sub { color: var(--muted); margin: 6px 0 24px; }
-  .choose { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .choose .badge { display: table; margin-top: 6px; font-size: 12px; }
-  .choose label { display: block; cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 16px 18px; transition: border-color .2s, background-color .2s, transform .16s var(--ease-out); }
-  .choose label:active { transform: scale(.985); }
+  .pane h3 { font-size: 26px; letter-spacing: -.025em; }
+  .pane .sub { color: var(--muted); margin: 6px 0 28px; }
+  .choose { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-bottom: 28px; border: 1px solid var(--rule); }
   .choose > div { position: relative; }
+  .choose > div + div { border-left: 1px solid var(--rule); }
   .choose input { position: absolute; inset: 0; margin: 0; opacity: 0; pointer-events: none; }
-  .choose b { display: block; font-size: 17px; }
-  .choose span { color: var(--muted); font-weight: 500; font-size: 14px; }
-  .choose input:checked + label { border: 2px solid var(--accent); background: var(--accent-soft); padding: 15px 17px; }
-  .choose input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .pay-grid { display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start; }
-  .qr { width: 100%; border-radius: var(--r-card); border: 1px solid var(--line); background: #fff; padding: 10px; }
-  .amount { font-size: 44px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
-  .amount-lbl { color: var(--muted); font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-  .pay-steps { margin: 20px 0 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
-  .note { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; padding: 12px 14px; border-radius: var(--r-ctl); background: var(--surface-2); color: var(--muted); font-size: 14px; }
-  .note .ic { color: var(--accent); margin-top: 2px; }
-  .nav-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
-  .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .choose label { display: block; height: 100%; cursor: pointer; padding: 16px 18px 18px; -webkit-user-select: none; user-select: none; transition: background-color .15s, box-shadow .15s; }
+  .choose b { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .choose b::before { content: ""; width: 10px; height: 10px; border: 1.5px solid var(--muted); flex: none; transition: background-color .15s, border-color .15s; }
+  .choose span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; padding-left: 20px; }
+  .choose .tag { margin: 6px 0 0; }
+  .choose input:checked + label { background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 0 0 0 2px var(--accent); }
+  .choose input:checked + label b::before { background: var(--accent); border-color: var(--accent); }
+  .choose input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pay-grid { display: grid; grid-template-columns: 240px 1fr; gap: 36px; align-items: start; }
+  .qr { width: 100%; border: 1px solid var(--rule); background: #fff; padding: 10px; }
+  .amount { font-size: 52px; font-weight: 600; letter-spacing: -.04em; line-height: 1; margin-top: 6px; }
+  .pay-steps { margin: 24px 0 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
+  .note { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 15px; }
+  .note b { color: var(--ink); }
+  .nav-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; }
+  .summary-row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .summary-row:first-child { border-top: 1px solid var(--ink); }
   .summary-row span:first-child { color: var(--muted); }
-  .done-ic { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); margin-bottom: 18px; }
-  .done-ic .ic { width: 34px; height: 34px; }
-  .done-ic.pop { animation: pop .6s var(--ease); }
-  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.06); } }
-  .order-no { font: 700 22px ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+  .done-ic { color: var(--accent); margin-bottom: 14px; }
+  .done-ic .ic { width: 56px; height: 56px; }
+  .done-ic.pop { animation: pop .5s var(--ease-out); }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } }
+  .order-no { font: 600 20px var(--mono); letter-spacing: .04em; }
 
   /* forms */
-  form { display: grid; gap: 16px; }
+  form { display: grid; gap: 18px; }
   .field { display: grid; gap: 6px; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   label.l { font-weight: 600; font-size: 14px; }
   .hint { font-size: 13px; color: var(--muted); font-weight: 400; }
-  input, select { width: 100%; min-height: 44px; padding: 10px 12px; font: inherit; color: var(--text); background: var(--bg);
-                  border: 1px solid var(--line); border-radius: var(--r-ctl); transition: border-color .2s; }
+  input, select { width: 100%; min-height: 48px; padding: 11px 13px; font: inherit; font-size: max(16px, 1em); color: var(--ink); background: var(--field);
+                  border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent); border-radius: 0; transition: border-color .15s; }
   input::placeholder { color: var(--muted); opacity: 1; }
-  input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
-  input, select { font-size: max(16px, 1em); }  /* under 16px iOS zooms the page on focus */
+  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
   input[aria-invalid="true"] { border-color: var(--err); }
-  .err { color: var(--err); font-size: 13px; font-weight: 600; min-height: 0; }
+  .err { color: var(--err); font-size: 13px; font-weight: 600; }
   .msg { font-weight: 600; margin: 0; min-height: 1.4em; } .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
-
   .agree { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; margin-top: 18px; font-size: 14px; color: var(--muted); }
-  .agree input { width: 20px; height: 20px; min-height: 0; margin: 2px 0 0; accent-color: var(--accent); }
+  .agree input { width: 18px; height: 18px; min-height: 0; margin: 3px 0 0; accent-color: var(--accent); }
   .agree label { cursor: pointer; }
 
-  /* trial */
-  .trial { background: var(--accent); color: var(--accent-ink); }
-  .trial .wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; padding-top: 96px; padding-bottom: 96px; }
+  /* trial: the one full-bleed colour band; the form sits directly on it */
+  .trial { margin-top: clamp(80px, 10vw, 136px); background: var(--accent); color: var(--accent-ink); padding: 28px 0 clamp(64px, 8vw, 104px); }
+  .trial .sh, .trial .sh .no { border-top-color: var(--accent-ink); color: var(--accent-ink); }
+  .trial-copy { grid-column: 1 / 6; }
   .trial h2 { color: var(--accent-ink); }
-  .trial .lead { color: var(--accent-ink); opacity: .88; }
-  .trial ul { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 10px; }
-  .trial li { display: flex; gap: 10px; align-items: center; }
-  .trial .panel { background: var(--surface); color: var(--text); border-radius: var(--r-card); padding: 30px; }
-  .trial .panel h3 { font-size: 20px; font-weight: 650; margin-bottom: 18px; }
-  .resend { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
-  .resend summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; }
-  .resend form { margin-top: 14px; grid-template-columns: 1fr auto; align-items: end; }
+  .trial .lead { color: var(--accent-ink); opacity: .9; }
+  .trial ul { list-style: none; padding: 0; margin: 28px 0 0; border-top: 1px solid color-mix(in srgb, var(--accent-ink) 35%, transparent); }
+  .trial ul li { display: flex; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid color-mix(in srgb, var(--accent-ink) 35%, transparent); }
+  .trial-form { grid-column: 7 / -1; }
+  .trial-form h3 { margin-bottom: 18px; color: var(--accent-ink); }
+  .trial input:not([type=checkbox]) { border-color: transparent; }
+  .trial input:focus { outline-color: var(--accent-ink); }
+  .trial .agree, .trial .hint, .trial .msg { color: var(--accent-ink); }
+  .trial a { color: var(--accent-ink); }
+  .trial .agree input { accent-color: var(--accent-ink); }
+  .btn-invert { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); }
+  .btn-line { background: transparent; color: var(--accent-ink); border-color: var(--accent-ink); }
+  .resend { margin-top: 28px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--accent-ink) 35%, transparent); }
+  .resend summary { cursor: pointer; font-weight: 600; font-size: 15px; text-decoration: underline; text-underline-offset: .2em; -webkit-user-select: none; user-select: none; }
+  .resend form { margin-top: 16px; grid-template-columns: 1fr auto; align-items: end; }
 
   /* faq */
-  .faq { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: start; }
-  details.q { border-bottom: 1px solid var(--line); }
-  details.q summary { list-style: none; cursor: pointer; padding: 20px 0; font-weight: 600; font-size: 17px; display: flex; justify-content: space-between; gap: 16px; }
+  .faq-intro { grid-column: 1 / 5; }
+  .faq-list { grid-column: 6 / -1; border-top: 1px solid var(--ink); }
+  details.q { border-bottom: 1px solid var(--rule); }
+  details.q summary { list-style: none; cursor: pointer; padding: 20px 0; font-weight: 600; font-size: 18px; letter-spacing: -.01em;
+                      display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-user-select: none; user-select: none; transition: color .15s; }
   details.q summary::-webkit-details-marker { display: none; }
-  details.q summary .ic { color: var(--muted); transition: transform .25s var(--ease); }
-  details.q[open] summary .ic { transform: rotate(180deg); }
-  details.q p { margin: 0 0 20px; color: var(--muted); max-width: 62ch; }
-  details.q summary { transition: color .15s; }
+  details.q summary::after { content: ""; flex: none; width: 14px; height: 14px; transition: transform .25s var(--ease-out);
+    background: linear-gradient(currentColor 0 0) center / 100% 1.5px no-repeat, linear-gradient(currentColor 0 0) center / 1.5px 100% no-repeat; }
+  details.q[open] summary::after { transform: rotate(45deg); }
+  details.q p { margin: 0 0 22px; color: var(--muted); max-width: 62ch; }
   details.q::details-content { block-size: 0; overflow: clip; opacity: 0;
     transition: block-size .28s var(--ease-out), opacity .2s, content-visibility .28s allow-discrete; }
   details.q[open]::details-content { block-size: auto; opacity: 1; }
 
-  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
-  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 28px; padding-bottom: 40px; }
+  footer { margin-top: clamp(80px, 10vw, 136px); }
+  footer .wrap > div { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px 24px; padding: 20px 0 48px; border-top: 2px solid var(--ink); font-size: 14px; color: var(--muted); }
+  footer .brand { font-size: 16px; }
+  footer .end { text-align: right; }
 
   @media (hover: hover) and (pointer: fine) {
-    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); box-shadow: 0 8px 20px -8px var(--accent); }
-    .btn-ghost:hover { background: var(--accent-soft); }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+    .btn-invert:hover { background: transparent; color: var(--accent-ink); }
+    .btn-line:hover { background: var(--accent-ink); color: var(--accent); }
     .btn:hover .ic.go { transform: translateX(3px); }
     nav a.link:hover, details.q summary:hover { color: var(--accent); }
-    .plan:hover { translate: 0 -4px; box-shadow: var(--shadow); }
-    .plan.best:hover { box-shadow: var(--shadow), 0 0 0 6px var(--accent-soft), 0 28px 64px -20px var(--accent); }
-    .choose label:hover { border-color: var(--accent); }
+    .choose label:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
   }
 
   /* scroll reveal (only when JS + motion allowed) */
   @media (prefers-reduced-motion: no-preference) {
-    .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); transition-delay: var(--d, 0s); }
+    .js .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); transition-delay: var(--d, 0s); }
     .js .reveal.in { opacity: 1; transform: none; }
-    .hero .rise { animation: rise .9s var(--ease) both; animation-delay: var(--d, 0s); }
-    @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
-    .stage .back { animation: settleB 1.1s var(--ease) .15s both; }
-    .stage .front { animation: settleF 1.1s var(--ease) .35s both; }
-    @keyframes settleB { from { opacity: 0; transform: translateY(30px) rotate(4deg); } }
-    @keyframes settleF { from { opacity: 0; transform: translate(-20px, 30px) rotate(-6deg); } }
+    .rise { animation: rise .8s var(--ease-out) both; animation-delay: var(--d, 0s); }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    *, *::before, *::after { animation: none !important; transition-property: color, background-color, border-color, opacity, box-shadow !important; }
-    .btn:active, .choose label:active { transform: none; }
+    *, *::before, *::after { animation: none !important; transition-property: color, background-color, border-color, opacity !important; }
+    .btn:active { transform: none; }
   }
 
   @media (max-width: 900px) {
-    .hero, .how, .plans, .trial .wrap, .faq, .pay-grid { grid-template-columns: 1fr; gap: 36px; }
-    .plan.best { margin: 0; padding: 30px; }
-    .hero { padding-top: 40px; }
-    .stage { padding: 0 0 32px 14px; }
-    .facts { grid-template-columns: 1fr 1fr; }
-    .facts div:nth-child(3) { border-left: 0; }
-    .facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
-    .bento { grid-template-columns: 1fr; } .bento > * { grid-column: auto; }
-    .c-a { grid-template-columns: 1fr; }
-    .road { grid-template-columns: 1fr; } .road > div + div { border-left: 0; border-top: 1px solid var(--line); }
-    .sec { padding: 72px 0; }
+    .feat-intro, .rows, .trial-copy, .trial-form, .faq-intro, .faq-list { grid-column: 1 / -1; }
+    .feat-intro { position: static; margin-bottom: 36px; }
+    .faq-intro { margin-bottom: 28px; }
+    .trial-form { margin-top: 44px; }
+    .spec { grid-template-columns: 1fr 1fr; }
+    .spec div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .spec div:nth-child(n+3) { border-top: 1px solid var(--rule); }
+    .steps { grid-template-columns: 1fr; }
+    .steps li, .steps li + li { padding: 20px 0 24px; border-left: 0; }
+    .steps li + li { border-top: 1px solid var(--rule); }
+    .steps .big { margin-bottom: 12px; }
+    .road li { grid-template-columns: 1fr; }
     nav a.link { display: none; }
-    .stepper li { padding: 14px 10px; justify-content: center; } .stepper .t { display: none; }
-    .pane { padding: 24px 20px; }
-    .pay-grid .qr { max-width: 260px; }
+    .stepper .t { display: none; }
+    .pay-grid { grid-template-columns: 1fr; } .pay-grid .qr { max-width: 240px; }
+    footer .wrap > div { grid-template-columns: 1fr; } footer .end { text-align: left; }
+  }
+  @media (max-width: 720px) {
+    .reel-steps .t { display: none; } .reel-now { display: block; }
+  }
+  @media (max-width: 720px) {  /* pricing table: row label above its three values */
+    .ptable, .ptable thead, .ptable tbody, .ptable tfoot { display: block; }
+    .ptable tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--rule); }
+    .ptable thead tr { border-bottom: 2px solid var(--ink); }
+    .ptable tfoot tr { border-bottom: 0; }
+    .ptable th, .ptable td, .ptable thead th, .ptable thead td { border: 0; padding: 10px 8px; }
+    .ptable th[scope=row] { grid-column: 1 / -1; width: auto; padding: 12px 0 0; font-size: 14px; }
+    .ptable thead td:first-child, .ptable tfoot td:first-child { display: none; }
+    .ptable thead th { padding-top: 18px; }
+    .pname { font-size: 17px; } .amt { font-size: 24px; } .per { display: block; font-size: 13px; line-height: 1.35; margin-top: 4px; }
+    .ptable tfoot .btn { padding: 10px 6px; font-size: 14px; white-space: normal; text-align: center; }
   }
   @media (max-width: 560px) {
     .row2, .choose { grid-template-columns: 1fr; }
-    .facts { grid-template-columns: 1fr; } .facts div + div { border-left: 0; border-top: 1px solid var(--line); }
+    .choose > div + div { border-left: 0; border-top: 1px solid var(--rule); }
+    .spec { grid-template-columns: 1fr; }
+    .spec div, .spec div + div { padding-left: 0; border-left: 0; }
+    .spec div + div { border-top: 1px solid var(--rule); }
     .resend form { grid-template-columns: 1fr; }
+    .hero-sub .actions, .hero-sub .actions .btn { width: 100%; }
+    .hero-sub .actions .btn { flex: 1; }
   }
 
   /* terms gate: shown on first visit until the visitor agrees */
-  #gate { max-width: min(480px, calc(100vw - 32px)); padding: 28px; border: 1px solid var(--line); border-radius: var(--r-card);
-          background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  #gate { max-width: min(480px, calc(100vw - 32px)); padding: 28px; border: 1px solid var(--ink); border-top: 6px solid var(--accent); border-radius: 0;
+          background: var(--bg); color: var(--ink); }
   #gate::backdrop { background: rgb(8 20 24 / .6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-  #gate h2 { font-size: 22px; }
+  #gate h2 { font-size: 26px; }
   #gate p { color: var(--muted); margin: 12px 0 0; }
-  #gate .gate-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  #gate .gate-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 </style>
 </head>
 <body>
@@ -342,27 +488,15 @@
 <script>document.documentElement.classList.add('js')</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <!-- Phosphor Icons (MIT), regular weight -->
-  <symbol id="i-buildings" viewBox="0 0 256 256"><path d="M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"/></symbol>
-  <symbol id="i-camera-plus" viewBox="0 0 256 256"><path d="M168,136a8,8,0,0,1-8,8H136v24a8,8,0,0,1-16,0V144H96a8,8,0,0,1,0-16h24V104a8,8,0,0,1,16,0v24h24A8,8,0,0,1,168,136Zm64-56V192a24,24,0,0,1-24,24H48a24,24,0,0,1-24-24V80A24,24,0,0,1,48,56H75.72L87,39.12A16,16,0,0,1,100.28,32h55.44A16,16,0,0,1,169,39.12L180.28,56H208A24,24,0,0,1,232,80Zm-16,0a8,8,0,0,0-8-8H176a8,8,0,0,1-6.66-3.56L155.72,48H100.28L86.66,68.44A8,8,0,0,1,80,72H48a8,8,0,0,0-8,8V192a8,8,0,0,0,8,8H208a8,8,0,0,0,8-8Z"/></symbol>
-  <symbol id="i-keyboard" viewBox="0 0 256 256"><path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192Zm-16-64a8,8,0,0,1-8,8H56a8,8,0,0,1,0-16H200A8,8,0,0,1,208,128Zm0-32a8,8,0,0,1-8,8H56a8,8,0,0,1,0-16H200A8,8,0,0,1,208,96ZM72,160a8,8,0,0,1-8,8H56a8,8,0,0,1,0-16h8A8,8,0,0,1,72,160Zm96,0a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,160Zm40,0a8,8,0,0,1-8,8h-8a8,8,0,0,1,0-16h8A8,8,0,0,1,208,160Z"/></symbol>
-  <symbol id="i-calendar-check" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-38.34-85.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L116,164.69l42.34-42.35A8,8,0,0,1,169.66,122.34Z"/></symbol>
-  <symbol id="i-lock-simple" viewBox="0 0 256 256"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></symbol>
-  <symbol id="i-wifi-slash" viewBox="0 0 256 256"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"/></symbol>
-  <symbol id="i-windows-logo" viewBox="0 0 256 256"><path d="M208,136H128a8,8,0,0,0-8,8v57.45a8,8,0,0,0,6.57,7.88l80,14.54A7.61,7.61,0,0,0,208,224a8,8,0,0,0,8-8V144A8,8,0,0,0,208,136Zm-8,70.41-64-11.63V152h64ZM96,136H32a8,8,0,0,0-8,8v40a8,8,0,0,0,6.57,7.87l64,11.64a8.54,8.54,0,0,0,1.43.13,8,8,0,0,0,8-8V144A8,8,0,0,0,96,136Zm-8,50.05-48-8.73V152H88ZM213.13,33.86a8,8,0,0,0-6.56-1.73l-80,14.55A8,8,0,0,0,120,54.55V112a8,8,0,0,0,8,8h80a8,8,0,0,0,8-8V40A8,8,0,0,0,213.13,33.86ZM200,104H136V61.22l64-11.63ZM101.13,54.22a8,8,0,0,0-6.56-1.73l-64,11.64A8,8,0,0,0,24,72v40a8,8,0,0,0,8,8H96a8,8,0,0,0,8-8V60.36A8,8,0,0,0,101.13,54.22ZM88,104H40V78.68L88,70Z"/></symbol>
-  <symbol id="i-file-xls" viewBox="0 0 256 256"><path d="M156,208a8,8,0,0,1-8,8H120a8,8,0,0,1-8-8V152a8,8,0,0,1,16,0v48h20A8,8,0,0,1,156,208ZM92.65,145.49a8,8,0,0,0-11.16,1.86L68,166.24,54.51,147.35a8,8,0,1,0-13,9.3L58.17,180,41.49,203.35a8,8,0,0,0,13,9.3L68,193.76l13.49,18.89a8,8,0,0,0,13-9.3L77.83,180l16.68-23.35A8,8,0,0,0,92.65,145.49Zm98.94,25.82c-4-1.16-8.14-2.35-10.45-3.84-1.25-.82-1.23-1-1.12-1.9a4.54,4.54,0,0,1,2-3.67c4.6-3.12,15.34-1.72,19.82-.56a8,8,0,0,0,4.07-15.48c-2.11-.55-21-5.22-32.83,2.76a20.58,20.58,0,0,0-8.95,14.95c-2,15.88,13.65,20.41,23,23.11,12.06,3.49,13.12,4.92,12.78,7.59-.31,2.41-1.26,3.33-2.15,3.93-4.6,3.06-15.16,1.55-19.54.35A8,8,0,0,0,173.93,214a60.63,60.63,0,0,0,15.19,2c5.82,0,12.3-1,17.49-4.46a20.81,20.81,0,0,0,9.18-15.23C218,179,201.48,174.17,191.59,171.31ZM40,112V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88v24a8,8,0,1,1-16,0V96H152a8,8,0,0,1-8-8V40H56v72a8,8,0,0,1-16,0ZM160,80h28.68L160,51.31Z"/></symbol>
-  <symbol id="i-clipboard-text" viewBox="0 0 256 256"><path d="M168,152a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,152Zm-8-40H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm56-64V216a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V48A16,16,0,0,1,56,32H92.26a47.92,47.92,0,0,1,71.48,0H200A16,16,0,0,1,216,48ZM96,64h64a32,32,0,0,0-64,0ZM200,48H173.25A47.93,47.93,0,0,1,176,64v8a8,8,0,0,1-8,8H88a8,8,0,0,1-8-8V64a47.93,47.93,0,0,1,2.75-16H56V216H200Z"/></symbol>
-  <symbol id="i-qr-code" viewBox="0 0 256 256"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm0,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48ZM200,40H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-64,72V144a8,8,0,0,1,16,0v32a8,8,0,0,1-16,0Zm80-16a8,8,0,0,1-8,8H184v40a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h24V144a8,8,0,0,1,16,0v8h24A8,8,0,0,1,216,160Zm0,32v16a8,8,0,0,1-16,0V192a8,8,0,0,1,16,0Z"/></symbol>
-  <symbol id="i-check-circle" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol>
   <symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
   <symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
   <symbol id="i-minus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></symbol>
-  <symbol id="i-caret-down" viewBox="0 0 256 256"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></symbol>
 </svg>
 <a class="skip" href="#main">Skip to content</a>
 
-<header id="hdr">
+<header>
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Unitly home"><img class="mark" src="logo.svg" alt="" width="32" height="32">Unitly</a>
+    <a class="brand" href="#top" aria-label="Unitly home"><img class="mark" src="logo.svg" alt="" width="28" height="28">Unitly</a>
     <nav aria-label="Main">
       <a class="link" href="#features">Features</a>
       <a class="link" href="#how">How it works</a>
@@ -374,279 +508,344 @@
 </header>
 
 <main id="main">
-  <section class="wrap hero" id="top">
-    <div>
-      <h1 class="rise">Defect reports for property teams, <em>done in minutes.</em></h1>
-      <p class="rise" style="--d:.1s">Load your inspection photos, type each defect once, and Unitly builds the finished Excel report.</p>
-      <div class="actions rise" style="--d:.2s">
-        <a class="btn btn-primary" href="#trial">Start free trial <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
-        <a class="btn btn-ghost" href="#pricing">Pricing</a>
+  <section class="reel" id="top">
+    <div class="reel-stage">
+      <div class="wrap reel-copy">
+        <h1 class="rise"><span class="m"><span>Defect</span></span> <span class="m"><span>reports</span></span> <span class="m"><span>for</span></span> <span class="m"><span>property</span></span> <span class="m"><span>teams,</span></span> <em><span class="m"><span>done</span></span> <span class="m"><span>in</span></span> <span class="m"><span>minutes.</span></span></em></h1>
+        <div class="hero-sub rise" style="--d:.1s">
+          <p>Load your inspection photos, type each defect once, and Unitly builds the finished Excel report.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#trial">Start free trial <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+            <a class="btn btn-ghost" href="#pricing">Pricing</a>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="stage" aria-label="Pages from a report made with Unitly">
-      <figure class="shot back"><img src="img/report-pro.webp" width="1053" height="665" alt="Record of Finding page: two defect photos side by side, each with its description"></figure>
-      <figure class="shot front"><img src="img/report-summary.webp" width="1051" height="644" alt="Summary page listing each room and its defect"></figure>
+
+      <div class="reel-canvas" aria-hidden="true">
+        <div class="rise" style="--d:.2s">
+          <div class="app">
+            <div class="a-title"><img src="logo.svg" width="16" height="16" alt="">Unitly Pro
+              <span class="a-win"><svg viewBox="0 0 10 10"><path d="M0 5h10"/></svg><svg viewBox="0 0 10 10"><path d="M.5 .5h9v9h-9z"/></svg><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10"/></svg></span></div>
+            <div class="a-head">
+              <span class="a-brand"><img src="logo.svg" width="30" height="30" alt="">Unitly</span>
+              <span class="a-btn" data-k="choose">Choose folder…</span>
+              <span class="a-path" data-k="path">No folder chosen</span>
+              <span class="a-badge">PRO</span>
+              <span class="a-btn">Template: Yours (Excel)</span>
+              <span class="a-btn a-primary off" data-k="gen">Generate Excel</span>
+            </div>
+            <div class="a-accent"></div>
+            <div class="a-page">
+              <div class="a-card a-details">
+                <div class="a-sec">SUMMARY DETAILS</div>
+                <div class="a-fields">
+                  <div>Conducted by<span class="a-in" data-k="f1"></span></div>
+                  <div>Property type<span class="a-in wide" data-k="f2"></span></div>
+                  <div>Furnishing<span class="a-in dd" data-k="f3">Fully</span></div>
+                  <div>Cleaning condition<span class="a-in dd">Cleaned</span></div>
+                  <div>Check date<span class="a-date" data-k="date">Choose a folder</span></div>
+                </div>
+              </div>
+              <div class="a-body">
+                <div class="a-card a-left">
+                  <div class="a-sec">PHOTOS &amp; VIDEOS</div>
+                  <div class="a-bar"><i data-k="bar"></i></div>
+                  <div class="a-muted" data-k="progress">&nbsp;</div>
+                  <div class="a-tree">
+                    <i class="a-sel" data-k="sel"></i>
+                    <div class="a-loc" data-row><span>Living Room&nbsp;&nbsp;·&nbsp;&nbsp;2</span></div>
+                    <div class="a-item" data-row data-item><span class="a-th"><img src="img/photo-crack.webp" alt=""></span><span class="n">1.</span><span class="tick"></span><span class="lbl">IMG_0412.jpg</span></div>
+                    <div class="a-item" data-row data-item><span class="a-th"><img src="img/photo-door.webp" alt=""></span><span class="n">2.</span><span class="tick"></span><span class="lbl">IMG_0415.jpg</span></div>
+                    <div class="a-loc" data-row><span>Bathroom&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
+                    <div class="a-item" data-row><span class="a-th"><img class="zoom" style="margin-left:-80px" src="img/photo-door.webp" alt=""></span><span class="n">1.</span><span class="tick">✓</span><span class="lbl">Water stain on ceiling above…</span></div>
+                    <div class="a-loc" data-row><span>Kitchen&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
+                    <div class="a-item" data-row><span class="a-th"><img class="zoom" style="margin-top:-60px" src="img/photo-crack.webp" alt=""></span><span class="n">1.</span><span class="tick">✓</span><span class="lbl">Chipped edge on kitchen coun…</span></div>
+                  </div>
+                  <div class="a-muted a-legend">✓&nbsp;&nbsp;defect filled&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▶&nbsp;&nbsp;video</div>
+                </div>
+                <div class="a-card a-right">
+                  <div class="a-h" data-k="title">Choose a folder to start</div>
+                  <div class="a-muted a-meta" data-k="meta">Pick the inspection folder that has one subfolder per room.</div>
+                  <div class="a-view">
+                    <div class="a-empty" data-k="empty"><span>No folder open</span><span>Click “Choose folder…” at the top to load an inspection</span></div>
+                    <img class="a-photo" data-k="ph0" src="img/photo-crack.webp" width="458" height="343" alt="">
+                    <img class="a-photo" data-k="ph1" src="img/photo-door.webp" width="459" height="343" alt="">
+                  </div>
+                  <div class="a-muted a-hint">Scroll on the photo to zoom&nbsp;&nbsp;·&nbsp;&nbsp;drag to move&nbsp;&nbsp;·&nbsp;&nbsp;double-click to fit</div>
+                  <div class="a-def">Defect</div>
+                  <div class="a-input" data-k="input"><span data-k="cap"></span><i class="a-caret" data-k="caret"></i></div>
+                  <div class="a-nav"><span class="a-btn">‹&nbsp;&nbsp;Previous</span><span class="a-btn a-primary" data-k="next">Save &amp; next&nbsp;&nbsp;›</span>
+                    <span class="a-muted a-keys" data-k="keys">Enter = save &amp; next&nbsp;&nbsp;·&nbsp;&nbsp;PgUp / PgDn = previous / next</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="a-dialog" data-k="dlg">
+              <div class="a-dt">Done<span>✕</span></div>
+              <div class="a-db"><span class="q">?</span><p>Saved:<br>C:\Inspections\Unit A-12-3\Unit A-12-3 - Inspection report.xlsx<br><br>Open it now?</p></div>
+              <div class="a-df"><span class="a-btn" data-k="yes">Yes</span><span class="a-btn">No</span></div>
+            </div>
+            <svg class="co-svg" width="1100" height="720"><path data-k="cp0"/><circle r="4" data-k="cd0"/><path data-k="cp1"/><circle r="4" data-k="cd1"/></svg>
+            <span class="co-tag r" data-k="ct0">Read from the first photo</span>
+            <span class="co-tag" data-k="ct1">One subfolder per room</span>
+            <i class="ripple" data-k="rip"></i>
+            <svg class="cur" data-k="cur" viewBox="0 0 22 30"><path d="M1 1v24l6.5-6.2 4.3 9.7 4-1.8-4.2-9.5H21z"/></svg>
+          </div>
+          <figure class="page page-sum"><img src="img/report-summary.webp" width="1051" height="644" alt=""></figure>
+          <figure class="page page-rec"><img src="img/report-pro.webp" width="1053" height="665" alt=""></figure>
+          <span class="ptag ptag-sum" data-k="pt0">Summary page</span>
+          <span class="ptag ptag-rec" data-k="pt1">Record of Finding</span>
+        </div>
+      </div>
+
+      <div class="kin" aria-hidden="true">
+        <div class="wrap k-intro" data-k="kintro">
+          <p class="k1"><span class="m"><span>A</span></span> <span class="m"><span>folder</span></span> <span class="m"><span>full</span></span> <span class="m"><span>of</span></span> <span class="m"><span>photos.</span></span></p>
+          <p class="k2" data-k="k2">A report due today.</p>
+          <p class="k3" data-k="k3">Let Unitly build it.</p>
+        </div>
+        <div class="wrap k-stack"><b>Type it.</b><b class="hot">Press Enter.</b><b>Next photo.</b></div>
+        <div class="wrap k-click" data-k="kclick"><span class="m"><span>One</span></span> <span class="m"><span><em>click.</em></span></span></div>
+      </div>
+      <div class="wrap k-end" data-k="kend" inert>
+        <p class="k-big"><span class="m"><span>Done</span></span> <span class="m"><span>in</span></span> <span class="m"><span>minutes.</span></span></p>
+        <p class="k-sub" data-k="ksub">Photos in, finished report out. Try Pro free for 48 hours.</p>
+        <a class="btn btn-primary" href="#trial" data-k="kcta">Start free trial <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+      </div>
+      <div class="wipe" data-k="wipe" aria-hidden="true"><span class="wipe-mark" data-k="wlogo"><img src="logo.svg" width="72" height="72" alt="">Unitly</span></div>
+
+      <div class="wrap reel-steps" aria-hidden="true">
+        <ol>
+          <li><i></i><span class="label">01</span><span class="t">Choose the unit folder</span></li>
+          <li><i></i><span class="label">02</span><span class="t">Describe each defect</span></li>
+          <li><i></i><span class="label">03</span><span class="t">Generate the report</span></li>
+          <li><i></i><span class="label">04</span><span class="t">Report ready</span></li>
+        </ol>
+        <p class="reel-now"></p>
+      </div>
     </div>
   </section>
 
   <div class="wrap">
-    <div class="facts reveal">
-      <div><svg class="ic" aria-hidden="true"><use href="#i-windows-logo"/></svg>Windows 10 and 11</div>
-      <div><svg class="ic" aria-hidden="true"><use href="#i-file-xls"/></svg>Opens in Excel and Google Sheets</div>
-      <div><svg class="ic" aria-hidden="true"><use href="#i-wifi-slash"/></svg>Works offline after activation</div>
-      <div><svg class="ic" aria-hidden="true"><use href="#i-lock-simple"/></svg>Photos never leave your PC</div>
-    </div>
+    <dl class="spec reveal">
+      <div><dt class="label">System</dt><dd>Windows 10 and 11</dd></div>
+      <div><dt class="label">Output</dt><dd>Opens in Excel and Google Sheets</dd></div>
+      <div><dt class="label">Connection</dt><dd>Works offline after activation</dd></div>
+      <div><dt class="label">Privacy</dt><dd>Photos never leave your PC</dd></div>
+    </dl>
   </div>
 
-  <section class="sec" id="features">
-    <div class="wrap">
-      <h2 class="reveal">Everything a unit inspection needs</h2>
-      <p class="lead reveal">Built around how inspectors already work: a folder per unit, a subfolder per room, and a lot of photos.</p>
-      <div class="bento">
-        <div class="cell c-a reveal">
-          <div>
-            <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-text"/></svg></span>
-            <h3>Summary page, filled in for you</h3>
-            <p>Every defect is listed by room on the Summary page, with inspector, property type and check date filled in.</p>
-          </div>
-          <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Summary page with rooms and defects"></figure>
-        </div>
-        <div class="cell c-b reveal" style="--d:.08s">
-          <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-camera-plus"/></svg></span>
-          <h3>Photos and videos, in order</h3>
-          <p>Rooms load from your folders, numbered and sorted. Videos are listed by name in the report.</p>
-        </div>
-        <div class="cell c-c reveal">
-          <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-keyboard"/></svg></span>
-          <h3>Type, press <span class="kbd">Enter</span>, next</h3>
-          <p>A large preview with zoom. Each caption saves and jumps to the next photo, so a full unit takes minutes.</p>
-        </div>
-        <div class="cell c-d reveal" style="--d:.08s">
-          <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-calendar-check"/></svg></span>
-          <h3>Check date from your photos</h3>
-          <p>The inspection date and time are read from the first photo, so nobody types them by hand.</p>
-        </div>
-        <div class="cell c-e reveal" style="--d:.16s">
-          <span class="badge-ic"><svg class="ic" aria-hidden="true"><use href="#i-lock-simple"/></svg></span>
-          <h3>Your company's own layout</h3>
-          <p>Import any past report, Excel, Word or PDF. Unitly learns its layout and builds every new report the same way.</p>
-        </div>
+  <section class="wrap sec" id="features">
+    <div class="sh label"><span class="no">01</span><span>Features</span></div>
+    <div class="g">
+      <div class="feat-intro reveal">
+        <h2>Everything a unit inspection needs</h2>
+        <p class="lead">Built around how inspectors already work: a folder per unit, a subfolder per room, and a lot of photos.</p>
       </div>
+      <ol class="rows reveal">
+        <li><span class="n">1.1</span><h3>Summary page, filled in for you</h3><p>Every defect is listed by room on the Summary page, with inspector, property type and check date filled in.</p></li>
+        <li><span class="n">1.2</span><h3>Photos and videos, in order</h3><p>Rooms load from your folders, numbered and sorted. Videos are listed by name in the report.</p></li>
+        <li><span class="n">1.3</span><h3>Type, press <span class="kbd">Enter</span>, next</h3><p>A large preview with zoom. Each caption saves and jumps to the next photo, so a full unit takes minutes.</p></li>
+        <li><span class="n">1.4</span><h3>Check date from your photos</h3><p>The inspection date and time are read from the first photo, so nobody types them by hand.</p></li>
+        <li><span class="n">1.5</span><h3>Your company's own layout</h3><p>Import any past report, Excel, Word or PDF. Unitly learns its layout and builds every new report the same way.</p></li>
+      </ol>
     </div>
   </section>
 
-  <section class="sec sec-alt" id="how">
-    <div class="wrap how">
-      <div>
-        <h2 class="reveal">From site visit to report in three steps</h2>
-        <ol class="steps reveal" id="steps">
-          <li><span class="num">1</span><div><h3>Pick the unit folder</h3><p>One subfolder per room. Unitly loads every photo and video in order.</p></div></li>
-          <li><span class="num">2</span><div><h3>Describe each defect</h3><p>Type what you see. Fill in the inspector, property type, furnishing and cleaning condition once.</p></div></li>
-          <li><span class="num">3</span><div><h3>Generate the report</h3><p>One click builds the Summary and Record of Finding, every photo placed and formatted.</p></div></li>
-        </ol>
-      </div>
-      <figure class="shot reveal" style="--d:.1s">
-        <img src="img/report-pro.webp" width="1053" height="665" loading="lazy" alt="Record of Finding page with photos and descriptions">
-        <figcaption>Record of Finding: two photos per row, the description above each one.</figcaption>
-      </figure>
-    </div>
+  <section class="wrap sec how" id="how">
+    <div class="sh label"><span class="no">02</span><span>How it works</span></div>
+    <h2 class="reveal">From site visit to report in three steps</h2>
+    <ol class="steps reveal">
+      <li><span class="big" aria-hidden="true">1</span><h3>Pick the unit folder</h3><p>One subfolder per room. Unitly loads every photo and video in order.</p></li>
+      <li><span class="big" aria-hidden="true">2</span><h3>Describe each defect</h3><p>Type what you see. Fill in the inspector, property type, furnishing and cleaning condition once.</p></li>
+      <li><span class="big" aria-hidden="true">3</span><h3>Generate the report</h3><p>One click builds the Summary and Record of Finding, every photo placed and formatted.</p></li>
+    </ol>
   </section>
 
-  <section class="sec">
-    <div class="wrap">
-      <h2 class="reveal">One system for the whole unit</h2>
-      <p class="lead reveal">Defect reports are the first module. More of the handover workflow is on the way, included as updates.</p>
-      <div class="road reveal">
-        <div><span class="pill now">Available now</span><h3>Defect inspection</h3><p>Photos, captions, Summary page and Record of Finding in Excel.</p></div>
-        <div><span class="pill">Coming next</span><h3>Inventory checklist</h3><p>Furniture, fittings and appliances per room, with condition and photos.</p></div>
-        <div><span class="pill">Planned</span><h3>Move-in and move-out</h3><p>Compare a unit's condition between tenancies, side by side.</p></div>
-      </div>
-    </div>
+  <section class="wrap sec">
+    <div class="sh label"><span class="no">03</span><span>Roadmap</span></div>
+    <h2 class="reveal">One system for the whole unit</h2>
+    <p class="lead reveal">Defect reports are the first module. More of the handover workflow is on the way, included as updates.</p>
+    <ul class="road reveal">
+      <li><span class="label status now">Available now</span><h3>Defect inspection</h3><p>Photos, captions, Summary page and Record of Finding in Excel.</p></li>
+      <li><span class="label status">Coming next</span><h3>Inventory checklist</h3><p>Furniture, fittings and appliances per room, with condition and photos.</p></li>
+      <li><span class="label status">Planned</span><h3>Move-in and move-out</h3><p>Compare a unit's condition between tenancies, side by side.</p></li>
+    </ul>
   </section>
 
-  <section class="sec sec-alt" id="pricing">
-    <div class="wrap">
-      <h2 class="reveal">One-time price. One key per computer.</h2>
-      <p class="lead reveal">Pay once with Touch 'n Go. No subscription. Not sure yet? <a href="#trial">Try Pro free for 48 hours.</a></p>
-      <div class="plans">
-        <div class="plan reveal">
-          <h3>Lite</h3>
-          <div class="price">RM 199 <small>/ computer</small></div>
-          <figure class="shot"><img src="img/report-pro.webp" width="960" height="740" loading="lazy" alt="Lite output: Unitly's ready-made report layout"><figcaption>Lite output: Unitly's ready-made report layout.</figcaption></figure>
-          <ul class="feat">
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Load rooms, photos and videos</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Finished Excel report in Unitly's ready-made layout</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Summary page and automatic check date</li>
-            <li class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg>Your company's own report layout</li>
-            <li class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg>Photo zoom and in-app video</li>
-          </ul>
-          <a class="btn btn-ghost" href="#buy" data-plan="lite">Buy Lite</a>
-        </div>
-        <div class="plan best reveal" style="--d:.08s">
-          <h3>Pro, 2 keys <span class="badge">Best value</span></h3>
-          <div class="price">RM 599 <small>/ 2 PCs</small></div>
-          <p class="save">RM 299.50 per computer. You save RM 199.</p>
-          <ul class="feat" style="margin-top:20px">
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Pro, on two computers</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Two licence keys in one email</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Each key activates its own computer</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>New modules as they launch, on both</li>
-          </ul>
-          <a class="btn btn-primary" href="#buy" data-plan="pro2">Buy 2 keys</a>
-        </div>
-        <div class="plan reveal" style="--d:.16s">
-          <h3>Pro</h3>
-          <div class="price">RM 399 <small>/ computer</small></div>
-          <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Pro output: the formatted Summary page"><figcaption>Pro output: the full report, ready to send to your client.</figcaption></figure>
-          <ul class="feat">
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Lite</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Your company's report layout, learned from a past report</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Check date read from your photos</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Zoom into photos, play videos in the app</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>New modules as they launch</li>
-          </ul>
-          <a class="btn btn-ghost" href="#buy" data-plan="pro">Buy Pro</a>
-        </div>
-      </div>
-    </div>
+  <section class="wrap sec" id="pricing">
+    <div class="sh label"><span class="no">04</span><span>Pricing</span></div>
+    <h2 class="reveal">One-time price. One key per computer.</h2>
+    <p class="lead reveal">Pay once with Touch 'n Go. No subscription. Not sure yet? <a href="#trial">Try Pro free for 48 hours.</a></p>
+    <table class="ptable reveal">
+      <caption class="sr">Plans compared</caption>
+      <thead>
+        <tr>
+          <td></td>
+          <th scope="col"><span class="pname">Lite</span><span class="amt">RM 199</span><span class="per">per computer</span></th>
+          <th scope="col"><span class="pname">Pro</span><span class="amt">RM 399</span><span class="per">per computer</span></th>
+          <th scope="col" class="best"><span class="tag">Best value</span><span class="pname">Pro, 2 keys</span><span class="amt">RM 599</span><span class="per">RM 299.50 each, save RM 199</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Computers</th><td>1</td><td>1</td><td class="best">2, two keys in one email</td></tr>
+        <tr><th scope="row">Rooms, photos and videos</th><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">Finished Excel report, Unitly's ready-made layout</th><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">Summary page and automatic check date</th><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">Your company's report layout, learned from a past report</th><td class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg><span class="sr">Not included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">Check date read from your photos</th><td class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg><span class="sr">Not included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">Zoom into photos, play videos in the app</th><td class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg><span class="sr">Not included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td></tr>
+        <tr><th scope="row">New modules as they launch</th><td class="no"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg><span class="sr">Not included</span></td><td><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included</span></td><td class="best"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="sr">Included, on both</span></td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td><a class="btn btn-ghost" href="#buy" data-plan="lite">Buy Lite</a></td>
+          <td><a class="btn btn-ghost" href="#buy" data-plan="pro">Buy Pro</a></td>
+          <td class="best"><a class="btn btn-primary" href="#buy" data-plan="pro2">Buy 2 keys</a></td>
+        </tr>
+      </tfoot>
+    </table>
   </section>
 
-  <section class="sec" id="buy">
-    <div class="wrap">
-      <h2 class="reveal" style="text-align:center">Checkout</h2>
-      <p class="lead reveal" style="margin:14px auto 0;text-align:center">Pay with your Touch 'n Go eWallet. Your licence key and download link are emailed once we confirm the payment.</p>
-      <div class="checkout reveal">
-        <ol class="stepper" aria-label="Checkout progress">
-          <li class="cur" data-s="1"><span class="n">1</span><span class="t">Plan and details</span></li>
-          <li data-s="2"><span class="n">2</span><span class="t">Pay</span></li>
-          <li data-s="3"><span class="n">3</span><span class="t">Confirm payment</span></li>
-          <li data-s="4"><span class="n">4</span><span class="t">Done</span></li>
-        </ol>
-        <form id="buy-f" novalidate>
-          <div class="pane" data-pane="1">
-            <h3>Choose your plan</h3>
-            <p class="sub">Step 1 of 4. One key activates one computer.</p>
-            <div class="choose" role="radiogroup" aria-label="Plan">
-              <div><input type="radio" name="plan" id="p-pro2" value="pro2"><label for="p-pro2"><b>Pro, 2 keys</b><span>RM 599, two computers</span><span class="badge">Best value</span></label></div>
-              <div><input type="radio" name="plan" id="p-pro" value="pro" checked><label for="p-pro"><b>Pro</b><span>RM 399, full formatted report</span></label></div>
-              <div><input type="radio" name="plan" id="p-lite" value="lite"><label for="p-lite"><b>Lite</b><span>RM 199, ready-made layout</span></label></div>
-            </div>
-            <div class="row2">
-              <div class="field"><label class="l" for="buy-name">Full name</label><input id="buy-name" name="name" required autocomplete="name"><span class="err" id="buy-name-e"></span></div>
-              <div class="field"><label class="l" for="buy-company">Company <span class="hint">(optional)</span></label><input id="buy-company" name="company" autocomplete="organization"></div>
-            </div>
-            <div class="field"><label class="l" for="buy-email">Email</label><input id="buy-email" name="email" type="email" required autocomplete="email" aria-describedby="buy-email-h">
-              <span class="hint" id="buy-email-h">Your licence key and download link are sent here.</span><span class="err" id="buy-email-e"></span></div>
-            <div class="nav-row"><span></span><button class="btn btn-primary" type="button" data-next>Continue to payment <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
+  <section class="wrap sec" id="buy">
+    <div class="sh label"><span class="no">05</span><span>Buy</span></div>
+    <h2 class="reveal">Checkout</h2>
+    <p class="lead reveal">Pay with your Touch 'n Go eWallet. Your licence key and download link are emailed once we confirm the payment.</p>
+    <div class="checkout reveal">
+      <ol class="stepper" aria-label="Checkout progress">
+        <li class="cur" data-s="1"><span class="n">01</span><span class="t">Plan and details</span></li>
+        <li data-s="2"><span class="n">02</span><span class="t">Pay</span></li>
+        <li data-s="3"><span class="n">03</span><span class="t">Confirm payment</span></li>
+        <li data-s="4"><span class="n">04</span><span class="t">Done</span></li>
+      </ol>
+      <form id="buy-f" novalidate>
+        <div class="pane" data-pane="1">
+          <h3>Choose your plan</h3>
+          <p class="sub">Step 1 of 4. One key activates one computer.</p>
+          <div class="choose" role="radiogroup" aria-label="Plan">
+            <div><input type="radio" name="plan" id="p-lite" value="lite"><label for="p-lite"><b>Lite</b><span>RM 199, ready-made layout</span></label></div>
+            <div><input type="radio" name="plan" id="p-pro" value="pro" checked><label for="p-pro"><b>Pro</b><span>RM 399, full formatted report</span></label></div>
+            <div><input type="radio" name="plan" id="p-pro2" value="pro2"><label for="p-pro2"><b>Pro, 2 keys</b><span>RM 599, two computers</span><span class="tag">Best value</span></label></div>
           </div>
+          <div class="row2">
+            <div class="field"><label class="l" for="buy-name">Full name</label><input id="buy-name" name="name" required autocomplete="name"><span class="err" id="buy-name-e"></span></div>
+            <div class="field"><label class="l" for="buy-company">Company <span class="hint">(optional)</span></label><input id="buy-company" name="company" autocomplete="organization"></div>
+          </div>
+          <div class="field"><label class="l" for="buy-email">Email</label><input id="buy-email" name="email" type="email" required autocomplete="email" aria-describedby="buy-email-h">
+            <span class="hint" id="buy-email-h">Your licence key and download link are sent here.</span><span class="err" id="buy-email-e"></span></div>
+          <div class="nav-row"><span></span><button class="btn btn-primary" type="button" data-next>Continue to payment <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
+        </div>
 
-          <div class="pane" data-pane="2" hidden>
-            <h3>Pay with Touch 'n Go</h3>
-            <p class="sub">Step 2 of 4. Scan the QR in your TNG eWallet app.</p>
-            <div class="pay-grid">
-              <img class="qr" src="tng-qr.png" width="260" height="260" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
-              <div>
-                <div class="amount-lbl">Amount to pay</div>
-                <div class="amount" data-amount>RM 399</div>
-                <ol class="pay-steps">
-                  <li>Open TNG eWallet and tap <b>Scan</b>.</li>
-                  <li>Scan this QR and enter the amount above exactly.</li>
-                  <li>Complete the payment, then open the receipt to find the <b>transaction reference</b>.</li>
-                </ol>
-                <div class="note"><svg class="ic" aria-hidden="true"><use href="#i-qr-code"/></svg><span>Paying from a phone? Take a screenshot of the QR, then choose it from your gallery in the TNG scanner.</span></div>
-              </div>
+        <div class="pane" data-pane="2" hidden>
+          <h3>Pay with Touch 'n Go</h3>
+          <p class="sub">Step 2 of 4. Scan the QR in your TNG eWallet app.</p>
+          <div class="pay-grid">
+            <img class="qr" src="tng-qr.png" width="240" height="240" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
+            <div>
+              <div class="label">Amount to pay</div>
+              <div class="amount" data-amount>RM 399</div>
+              <ol class="pay-steps">
+                <li>Open TNG eWallet and tap <b>Scan</b>.</li>
+                <li>Scan this QR and enter the amount above exactly.</li>
+                <li>Complete the payment, then open the receipt to find the <b>transaction reference</b>.</li>
+              </ol>
+              <p class="note"><b>Paying from a phone?</b> Take a screenshot of the QR, then choose it from your gallery in the TNG scanner.</p>
             </div>
-            <div class="nav-row"><button class="btn btn-ghost" type="button" data-back>Back</button><button class="btn btn-primary" type="button" data-next>I have paid <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
           </div>
+          <div class="nav-row"><button class="btn btn-ghost" type="button" data-back>Back</button><button class="btn btn-primary" type="button" data-next>I have paid <svg class="ic go" aria-hidden="true"><use href="#i-arrow-right"/></svg></button></div>
+        </div>
 
-          <div class="pane" data-pane="3" hidden>
-            <h3>Confirm your payment</h3>
-            <p class="sub">Step 3 of 4. We match this reference against our TNG statement.</p>
-            <div class="field"><label class="l" for="buy-ref">TNG transaction reference</label><input id="buy-ref" name="ref" required autocomplete="off" inputmode="numeric" aria-describedby="buy-ref-h">
-              <span class="hint" id="buy-ref-h">Shown on your TNG receipt as Transaction No. or Reference No.</span><span class="err" id="buy-ref-e"></span></div>
-            <div style="margin-top:20px">
-              <div class="summary-row"><span>Plan</span><b data-plan-name>Pro</b></div>
-              <div class="summary-row"><span>Amount paid</span><b data-amount>RM 399</b></div>
-              <div class="summary-row"><span>Key sent to</span><b data-email></b></div>
-            </div>
-            <div class="agree"><input type="checkbox" id="buy-terms" name="terms" value="v1" aria-describedby="buy-terms-e">
-              <label for="buy-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>. Unitly is owned by Mohamed Kaiser; I receive a licence to use it and will not copy or recreate it.</label></div>
-            <span class="err" id="buy-terms-e"></span>
-            <p class="msg" role="status" aria-live="polite"></p>
-            <div class="nav-row"><button class="btn btn-ghost" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Submit order</button></div>
+        <div class="pane" data-pane="3" hidden>
+          <h3>Confirm your payment</h3>
+          <p class="sub">Step 3 of 4. We match this reference against our TNG statement.</p>
+          <div class="field"><label class="l" for="buy-ref">TNG transaction reference</label><input id="buy-ref" name="ref" required autocomplete="off" inputmode="numeric" aria-describedby="buy-ref-h">
+            <span class="hint" id="buy-ref-h">Shown on your TNG receipt as Transaction No. or Reference No.</span><span class="err" id="buy-ref-e"></span></div>
+          <div style="margin-top:24px">
+            <div class="summary-row"><span>Plan</span><b data-plan-name>Pro</b></div>
+            <div class="summary-row"><span>Amount paid</span><b data-amount>RM 399</b></div>
+            <div class="summary-row"><span>Key sent to</span><b data-email></b></div>
           </div>
+          <div class="agree"><input type="checkbox" id="buy-terms" name="terms" value="v1" aria-describedby="buy-terms-e">
+            <label for="buy-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>. Unitly is owned by Mohamed Kaiser; I receive a licence to use it and will not copy or recreate it.</label></div>
+          <span class="err" id="buy-terms-e"></span>
+          <p class="msg" role="status" aria-live="polite"></p>
+          <div class="nav-row"><button class="btn btn-ghost" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Submit order</button></div>
+        </div>
 
-          <div class="pane" data-pane="4" hidden>
-            <div class="done-ic"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg></div>
-            <h3>Order received</h3>
-            <p class="sub">We are confirming your payment. Your licence key and download link will arrive by email, usually the same day.</p>
-            <div class="summary-row"><span>Order number</span><span class="order-no" data-order>Pending</span></div>
-            <div class="summary-row"><span>Email</span><b data-email></b></div>
-            <p class="hint" style="margin-top:16px">A copy of this order was emailed to you. Check your spam folder if you can't find it.</p>
-          </div>
-        </form>
-      </div>
+        <div class="pane" data-pane="4" hidden>
+          <div class="done-ic"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></div>
+          <h3>Order received</h3>
+          <p class="sub">We are confirming your payment. Your licence key and download link will arrive by email, usually the same day.</p>
+          <div class="summary-row"><span>Order number</span><span class="order-no" data-order>Pending</span></div>
+          <div class="summary-row"><span>Email</span><b data-email></b></div>
+          <p class="hint" style="margin-top:16px">A copy of this order was emailed to you. Check your spam folder if you can't find it.</p>
+        </div>
+      </form>
     </div>
   </section>
 
   <section class="trial" id="trial">
     <div class="wrap">
-      <div class="reveal">
-        <h2>Try Pro free for 48 hours</h2>
-        <p class="lead">Every Pro feature on one computer. Enter your email and we send your trial key and a private download link.</p>
-        <ul>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>No payment or card needed</li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Starts when you activate, not when you sign up</li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Keep your reports when it ends</li>
-        </ul>
-      </div>
-      <div class="panel reveal" style="--d:.1s">
-        <h3>Get your trial key</h3>
-        <form id="trial-f" data-action="trial">
-          <div class="row2">
-            <div class="field"><label class="l" for="trial-name">Full name</label><input id="trial-name" name="name" required autocomplete="name"></div>
-            <div class="field"><label class="l" for="trial-company">Company <span class="hint">(optional)</span></label><input id="trial-company" name="company" autocomplete="organization"></div>
-          </div>
-          <div class="field"><label class="l" for="trial-email">Work email</label><input id="trial-email" name="email" type="email" required autocomplete="email"></div>
-          <div class="agree"><input type="checkbox" id="trial-terms" name="terms" value="v1" required>
-            <label for="trial-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>.</label></div>
-          <button class="btn btn-primary" type="submit">Email me a trial key</button>
-          <p class="msg" role="status" aria-live="polite"></p>
-        </form>
-        <details class="resend">
-          <summary>Already a customer? Get a new download link</summary>
-          <form id="link-f" data-action="link">
-            <div class="field"><label class="l" for="link-email">Email you bought or trialled with</label><input id="link-email" name="email" type="email" required autocomplete="email"></div>
-            <button class="btn btn-ghost" type="submit">Send link</button>
-            <p class="msg" role="status" aria-live="polite" style="grid-column:1/-1"></p>
+      <div class="sh label"><span class="no">06</span><span>Free trial</span></div>
+      <div class="g">
+        <div class="trial-copy reveal">
+          <h2>Try Pro free for 48 hours</h2>
+          <p class="lead">Every Pro feature on one computer. Enter your email and we send your trial key and a private download link.</p>
+          <ul>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>No payment or card needed</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Starts when you activate, not when you sign up</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Keep your reports when it ends</li>
+          </ul>
+        </div>
+        <div class="trial-form reveal" style="--d:.1s">
+          <h3>Get your trial key</h3>
+          <form id="trial-f" data-action="trial">
+            <div class="row2">
+              <div class="field"><label class="l" for="trial-name">Full name</label><input id="trial-name" name="name" required autocomplete="name"></div>
+              <div class="field"><label class="l" for="trial-company">Company <span class="hint">(optional)</span></label><input id="trial-company" name="company" autocomplete="organization"></div>
+            </div>
+            <div class="field"><label class="l" for="trial-email">Work email</label><input id="trial-email" name="email" type="email" required autocomplete="email"></div>
+            <div class="agree"><input type="checkbox" id="trial-terms" name="terms" value="v1" required>
+              <label for="trial-terms">I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and Licence Agreement</a>.</label></div>
+            <button class="btn btn-invert" type="submit">Email me a trial key</button>
+            <p class="msg" role="status" aria-live="polite"></p>
           </form>
-        </details>
+          <details class="resend">
+            <summary>Already a customer? Get a new download link</summary>
+            <form id="link-f" data-action="link">
+              <div class="field"><label class="l" for="link-email">Email you bought or trialled with</label><input id="link-email" name="email" type="email" required autocomplete="email"></div>
+              <button class="btn btn-line" type="submit">Send link</button>
+              <p class="msg" role="status" aria-live="polite" style="grid-column:1/-1"></p>
+            </form>
+          </details>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="faq">
-    <div class="wrap faq">
-      <div>
-        <h2 class="reveal">Questions</h2>
-        <p class="lead reveal">Something else? Email <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a>.</p>
+  <section class="wrap sec" id="faq">
+    <div class="sh label"><span class="no">07</span><span>FAQ</span></div>
+    <div class="g">
+      <div class="faq-intro reveal">
+        <h2>Questions</h2>
+        <p class="lead">Something else? Email <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a>.</p>
       </div>
-      <div class="reveal">
-        <details class="q"><summary>How do I get the app?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+      <div class="faq-list reveal">
+        <details class="q"><summary>How do I get the app?</summary>
           <p>After a free trial request or a confirmed purchase, we email your licence key and a private download link. The link works for 7 days. You can request a new one any time with the same email.</p></details>
-        <details class="q"><summary>Can it match my company's report format?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>Can it match my company's report format?</summary>
           <p>Yes, with Pro. Import a report your company already made (Excel, Word or PDF). Unitly finds the details, the findings table and the photo pages, and builds every new report in that layout, with your letterhead and logo. Excel and Word work best; PDFs are converted first, so check the layout once.</p></details>
-        <details class="q"><summary>How long does payment confirmation take?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>How long does payment confirmation take?</summary>
           <p>We check every TNG payment by hand, usually within the same day. You get an order email right away and your key as soon as it is confirmed.</p></details>
-        <details class="q"><summary>Can I use one licence on two computers?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>Can I use one licence on two computers?</summary>
           <p>No. Each key activates one computer. For two computers, the 2-key Pro deal is RM 599 instead of RM 798. Email us if you need to move a key to a new PC.</p></details>
-        <details class="q"><summary>What happens when the trial ends?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>What happens when the trial ends?</summary>
           <p>The app asks for a licence key. Reports you already made are normal Excel files and stay on your computer.</p></details>
-        <details class="q"><summary>Can I upgrade from Lite to Pro later?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>Can I upgrade from Lite to Pro later?</summary>
           <p>Yes. Buy Pro, then click <b>Upgrade to Pro</b> in the app and enter the new key.</p></details>
-        <details class="q"><summary>Does it need the internet?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>Does it need the internet?</summary>
           <p>Only to activate, and at least once every 14 days to stay active. Your photos never leave your computer.</p></details>
-        <details class="q"><summary>What do I need?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
+        <details class="q"><summary>What do I need?</summary>
           <p>A Windows 10 or 11 PC. Reports open in Excel and can be imported into Google Sheets.</p></details>
       </div>
     </div>
@@ -655,8 +854,11 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Mohamed Kaiser. Unitly is owned and developed by Mohamed Kaiser. All rights reserved. <a href="terms.html">Terms</a></span>
-    <span>Contact: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></span>
+    <div>
+      <a class="brand" href="#top"><img class="mark" src="logo.svg" alt="" width="22" height="22">Unitly</a>
+      <span>© 2026 Mohamed Kaiser. Unitly is owned and developed by Mohamed Kaiser. All rights reserved. <a href="terms.html">Terms</a></span>
+      <span class="end">Contact: <a href="mailto:mohdkaiser1806@gmail.com">mohdkaiser1806@gmail.com</a></span>
+    </div>
   </div>
 </footer>
 
@@ -673,13 +875,210 @@ async function post(data) {
   catch (_) { await fetch(SCRIPT_URL, { ...opts, mode: 'no-cors' }); return { ok: true, blind: true }; }
 }
 
-// header border once scrolled
-const hdr = $('#hdr');
-new IntersectionObserver(([e]) => hdr.classList.toggle('scrolled', !e.isIntersecting)).observe($('.hero'));
-
 // scroll reveal
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .15 });
 $$('.reveal').forEach(el => io.observe(el));
+
+// ---- hero reel: scroll plays a short ad: kinetic type, the app at work, then the finished report
+(() => {
+  const reel = $('.reel'), stage = $('.reel-stage'), copy = $('.reel-copy'), sub = $('.hero-sub'), canvas = $('.reel-canvas'), app = $('.app');
+  const stepsBox = $('.reel-steps'), steps = $$('.reel-steps li'), now = $('.reel-now'), pages = $$('.page');
+  const K = {}; $$('[data-k]', reel).forEach(el => K[el.dataset.k] = el);
+  const rows = $$('[data-row]', reel), items = $$('[data-item]', reel), stack = $$('.k-stack b', reel);
+  const words = sel => $$(sel + ' .m > span', reel);
+  const W = { h1: words('.reel-copy h1'), k1: words('.k1'), click: words('.k-click'), end: words('.k-big') };
+  const HEAD = 64, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CAP = ['Hairline crack on wall beside window', 'Door misaligned, uneven gap at top of frame'];
+  const PATH = 'C:\\Inspections\\Unit A-12-3';
+  const STEPS = [[.19, .375], [.375, .64], [.64, .79], [.79, .9]];
+
+  // the same curves as the CSS tokens, solved for x
+  const bez = (x1, y1, x2, y2) => {
+    const B = (a, b, t) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+    return x => { if (x <= 0 || x >= 1) return x; let lo = 0, hi = 1, t = x;
+      for (let i = 0; i < 18; i++) { t = (lo + hi) / 2; B(x1, x2, t) < x ? lo = t : hi = t; } return B(y1, y2, t); };
+  };
+  const inOut = bez(.77, 0, .175, 1), out = bez(.23, 1, .32, 1), lin = x => x;
+  const clamp = v => Math.min(1, Math.max(0, v));
+  const seg = (p, a, b, e = inOut) => e(clamp((p - a) / (b - a)));
+  const mix = (a, b, t) => a + (b - a) * t;
+  const css = (el, prop, v) => { if (el['_' + prop] !== v) { el['_' + prop] = v; el.style[prop] = v; } };
+  const txt = (el, v) => { if (el._t !== v) { el._t = v; el.textContent = v; } };
+  const cls = (el, c, on) => el.classList.toggle(c, !!on);
+  const type = (str, t) => str.slice(0, Math.round(str.length * t));
+  const trunc = s => s.length > 30 ? s.slice(0, 29) + '…' : s;  // the app cuts tree labels the same way
+  const vis = (el, on) => css(el, 'visibility', on ? 'visible' : 'hidden');
+  // words rise through their masks from a, staggered; and leave upward from b
+  const rise = (els, p, a, st, d, b) => els.forEach((el, k) => {
+    const i = seg(p, a + k * st, a + k * st + d, out), o = b == null ? 0 : seg(p, b + k * st / 2, b + k * st / 2 + .02);
+    css(el, 'transform', `translateY(${((1 - i - o) * 110).toFixed(2)}%)`);
+  });
+  const pos = el => {  // centre of el in app coordinates (offsets ignore transforms)
+    let x = el.offsetWidth / 2, y = el.offsetHeight / 2;
+    for (let n = el; n && n !== app; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+    return [x, y];
+  };
+
+  let fit = 1, top0 = 0, ty0 = 0, zoom = 1, rowY = [], plen = [0, 0], path = [], presses = [];
+  function layout() {
+    const Wd = stage.clientWidth, H = stage.clientHeight, sh = stepsBox.offsetHeight + 28;
+    fit = Math.min((Wd - 32) / 1200, (H - sh - 12) / 800);
+    top0 = (H - sh) / 2 + 6;
+    canvas.style.top = top0 + 'px';
+    zoom = Wd < 720 ? 1.6 : 1.3;  // camera push-in on the caption box; phones need it most
+    const peek = Math.min(copy.offsetTop + copy.offsetHeight + 36, H - 150);  // the window peeks in under the copy
+    ty0 = (peek - top0) / fit + 360;
+    rowY = items.map(r => r.offsetTop);
+    // callouts: check date (tag hangs left) and the room list (tag runs right)
+    const [dx, dy] = pos(K.date), a = [dx - K.date.offsetWidth / 2 + 40, dy + 16];
+    const loc = rows[0].firstChild, [lx, ly] = pos(loc), b = [lx + loc.offsetWidth / 2 + 12, ly];  // just past "Living Room · 2"
+    K.cp0.setAttribute('d', `M${a[0]} ${a[1]}V${a[1] + 70}H${a[0] - 56}`);
+    K.cp1.setAttribute('d', `M${b[0]} ${b[1]}H${b[0] + 150}`);
+    [[K.cd0, a], [K.cd1, b]].forEach(([c, [x, y]]) => { c.setAttribute('cx', x); c.setAttribute('cy', y); });
+    Object.assign(K.ct0.style, { left: a[0] - 56 + 'px', top: a[1] + 70 + 'px' });
+    Object.assign(K.ct1.style, { left: b[0] + 150 + 'px', top: b[1] + 'px' });
+    plen = [K.cp0, K.cp1].map(el => { const L = el.getTotalLength(); el.style.strokeDasharray = L; return L; });
+    // cursor waypoints [time, x, y] and the three clicks
+    const [cx, cy] = pos(K.choose), [gx, gy] = pos(K.gen), [yx, yy] = pos(K.yes);
+    path = [[.215, 1000, 700], [.245, cx, cy], [.26, cx, cy], [.3, 640, 560], [.35, 760, 680],
+            [.64, 920, 660], [.665, gx, gy], [.75, gx + 20, gy + 50], [.775, yx, yy], [.81, yx + 50, yy + 50]];
+    presses = [[.245, cx, cy, K.choose], [.665, gx, gy, K.gen], [.775, yx, yy, K.yes]];
+  }
+
+  function render(p, c = p) {
+    // act 1 — the headline leaves word by word, the window drops away
+    W.h1.forEach((el, k) => css(el, 'transform', `translateY(${(-110 * seg(p, k * .005, k * .005 + .03)).toFixed(2)}%)`));
+    const so = seg(p, 0, .03, lin);
+    css(sub, 'opacity', 1 - so); css(sub, 'transform', `translateY(${16 * so}px)`); vis(copy, p < .07);
+
+    // kinetic intro: three lines, three entrances (rise, side-snap, slam)
+    rise(W.k1, p, .04, .006, .03);
+    const t2 = seg(p, .075, .105, out), t3 = seg(p, .1, .125, out);
+    css(K.k2, 'clipPath', `inset(-20% ${(100 * (1 - t2)).toFixed(2)}% -20% 0)`); css(K.k2, 'transform', `translateX(${-40 * (1 - t2)}px)`);
+    css(K.k3, 'opacity', t3 ? 1 : 0); css(K.k3, 'transform', `scale(${mix(1.4, 1, t3)})`);
+    css(K.kintro, 'transform', `translateY(${-36 * seg(p, .04, .18, lin)}px)`); vis(K.kintro, p > .03 && p < .185);
+
+    // colour wipe up through the frame, brand flash, then off the top to reveal the app
+    const wi = seg(p, .155, .18), wo = seg(p, .19, .215), wl = seg(p, .165, .185, out);
+    css(K.wipe, 'transform', `translateY(${((1 - wi - wo) * 100).toFixed(2)}%)`); vis(K.wipe, wi > 0 && wo < 1);
+    css(K.wlogo, 'opacity', wl); css(K.wlogo, 'transform', `translateY(${(1 - wl) * 30}px)`);
+
+    // the window: peeks under the hero, returns behind the wipe, floats, then steps back for the report
+    const a = seg(p, .19, .26, out), o = seg(p, .79, .86);
+    const drift = Math.sin(p * 55) * 5 * seg(p, .26, .3, lin) * (1 - seg(p, .74, .79, lin));
+    if (p < .19) {
+      const d = seg(p, 0, .06);
+      css(app, 'transform', `translate(0px, ${ty0 + 260 * d}px) perspective(1800px) rotateX(14deg) scale(.94)`);
+      css(app, 'opacity', 1 - seg(p, .02, .06, lin));
+    } else {
+      css(app, 'transform', `translate(${-260 * o}px, ${drift.toFixed(2)}px) perspective(1800px) rotateX(${8 * (1 - a)}deg) scale(${mix(1.08, 1, a) * mix(1, .6, o)})`);
+      css(app, 'opacity', mix(1, .5, o));
+    }
+
+    // camera: push in on the photo and caption box while typing; dim for "One click."; pull away for the end card
+    const z = seg(p, .375, .41) * (1 - seg(p, .62, .655)), dk = seg(p, .675, .69, lin) * (1 - seg(p, .73, .75, lin)), e = seg(p, .9, .94);
+    const Z = fit * mix(1, zoom, z) * mix(1, .95, dk) * mix(1, .9, e), fx = mix(600, 756, z), fy = mix(400, 492, z);
+    css(canvas, 'transform', `translate(-50%, -50%) translate(${((600 - fx) * Z).toFixed(1)}px, ${((400 - fy) * Z).toFixed(1)}px) scale(${Z})`);
+    css(canvas, 'opacity', (1 - .8 * dk) * (1 - .85 * e));
+    css(stepsBox, 'opacity', seg(p, .2, .23, lin) * (1 - seg(p, .89, .91, lin)));
+
+    // 01 choose the folder: cursor clicks, path types, rooms drop in, callouts draw
+    const pt = seg(c, .255, .285, lin), loaded = c >= .285;
+    txt(K.path, pt ? type(PATH, pt) : 'No folder chosen'); cls(K.path, 'set', pt);
+    txt(K.f1, loaded ? 'Aiman Hakim' : ''); txt(K.f2, loaded ? 'Condominium' : ''); txt(K.f3, loaded ? 'Partial' : 'Fully');
+    txt(K.date, loaded ? '3 October 2026, 10:15 AM' : 'Choose a folder');
+    rows.forEach((r, k) => { const t = seg(c, .27 + k * .006, .3 + k * .006, out);
+      css(r, 'opacity', t); css(r, 'transform', `translateY(${((1 - t) * 14).toFixed(2)}px)`); });
+    css(K.empty, 'opacity', 1 - seg(c, .28, .3, lin));
+    const swap = seg(c, .505, .535);
+    css(K.ph0, 'opacity', seg(c, .29, .32, lin) * (1 - swap)); css(K.ph0, 'transform', `scale(${mix(1.08, 1, seg(c, .29, .36, out))})`);
+    css(K.ph1, 'opacity', swap); css(K.ph1, 'transform', `scale(${mix(1.08, 1, seg(c, .505, .57, out))})`);
+    txt(K.title, loaded ? 'Living Room' : 'Choose a folder to start');
+    txt(K.meta, !loaded ? 'Pick the inspection folder that has one subfolder per room.'
+      : c < .51 ? 'Photo 1 of 2  ·  IMG_0412.jpg' : 'Photo 2 of 2  ·  IMG_0415.jpg');
+    css(K.sel, 'opacity', seg(c, .29, .31, lin)); css(K.sel, 'transform', `translateY(${mix(rowY[0], rowY[1], swap)}px)`);
+    [0, 1].forEach(k => {
+      const s0 = .305 + k * .01, i = seg(c, s0, s0 + .025, out), ti = seg(c, s0 + .012, s0 + .03, out), q = 1 - seg(c, .365, .38, lin);
+      const cp = K['cp' + k], tag = K['ct' + k], X = (100 * (1 - ti)).toFixed(2);
+      css(cp, 'strokeDashoffset', (plen[k] * (1 - i)).toFixed(1)); css(cp, 'opacity', q);
+      css(K['cd' + k], 'opacity', i ? q : 0); css(tag, 'opacity', q);
+      css(tag, 'clipPath', k ? `inset(0 ${X}% 0 0)` : `inset(0 0 0 ${X}%)`);
+    });
+
+    // 02 describe each defect: type, Enter, next photo, with the words stamped alongside
+    const done = [c >= .505, c >= .615], filled = 2 + done[0] + done[1];
+    txt(K.cap, c < .505 ? type(CAP[0], seg(c, .41, .49, lin)) : c < .535 ? '' : type(CAP[1], seg(c, .535, .6, lin)));
+    const typing = c > .4 && c < .64;
+    cls(K.input, 'focus', typing); cls(K.caret, 'on', typing);
+    cls(K.keys, 'flash', (c > .49 && c < .52) || (c > .6 && c < .63)); cls(K.next, 'on', c > .49 && c < .505);
+    items.forEach((r, k) => { txt($('.tick', r), done[k] ? '✓' : ''); txt($('.lbl', r), done[k] ? trunc(CAP[k]) : ['IMG_0412.jpg', 'IMG_0415.jpg'][k]); });
+    css(K.bar, 'transform', `scaleX(${loaded ? filled / 4 : 0})`);
+    txt(K.progress, loaded ? `${filled} of 4 defects filled  ·  viewing ${c < .51 ? 1 : 2}` : '\u00a0');
+    [.41, .49, .51].forEach((s0, k) => {
+      const i = seg(p, s0, s0 + .02, out), q = seg(p, .615 + k * .006, .635 + k * .006);
+      css(stack[k], 'clipPath', `inset(0 ${(100 * (1 - i)).toFixed(2)}% 0 ${(100 * q).toFixed(2)}%)`);
+      css(stack[k], 'transform', `translateX(${(-28 * (1 - i)).toFixed(2)}px)`);
+    });
+
+    // 03 generate: click, "One click." slams over a dimmed app, then the app's own Done box
+    const gen = c >= .675 && c < .745;
+    cls(K.gen, 'off', !loaded || gen); txt(K.gen, gen ? 'Generating…' : 'Generate Excel');
+    presses.forEach(([t0, , , el]) => cls(el, 'on', c >= t0 && c < t0 + .013));
+    rise(W.click, p, .68, .012, .02, .725);
+    css(W.click[1].parentNode, 'transform', `scale(${mix(1.35, 1, seg(p, .692, .712, out))})`);
+    vis(K.kclick, p > .675 && p < .75);
+    const d = seg(c, .745, .765, out) * (1 - seg(c, .785, .8, lin));
+    css(K.dlg, 'opacity', d); css(K.dlg, 'transform', `scale(${mix(.94, 1, d)})`);
+
+    // cursor between waypoints, dipping on each click with a ripple
+    const n = path.findIndex(w => c < w[0]);
+    const A = n < 0 ? path[path.length - 1] : path[Math.max(0, n - 1)], B = n < 0 ? A : path[n];
+    const ct = n > 0 ? inOut((c - A[0]) / (B[0] - A[0])) : 0;
+    const press = presses.find(([t0]) => c >= t0 && c < t0 + .01);
+    css(K.cur, 'transform', `translate(${mix(A[1], B[1], ct).toFixed(1)}px, ${mix(A[2], B[2], ct).toFixed(1)}px) scale(${press ? .82 : 1})`);
+    css(K.cur, 'opacity', seg(c, .215, .225, lin) * (1 - seg(c, .33, .35, lin)) + seg(c, .64, .65, lin) * (1 - seg(c, .79, .81, lin)));
+    const rp = presses.find(([t0]) => c >= t0 && c < t0 + .03), rt = rp ? out((c - rp[0]) / .03) : 1;
+    css(K.rip, 'transform', rp ? `translate(${rp[1]}px, ${rp[2]}px) scale(${mix(.4, 1.9, rt)})` : 'scale(0)');
+    css(K.rip, 'opacity', rp ? .8 * (1 - rt) : 0);
+
+    // 04 the finished pages print out of the window and get labelled
+    pages.forEach((pg, k) => { const t = seg(c, k ? .83 : .8, k ? .89 : .86, out);
+      css(pg, 'opacity', t ? 1 : 0); css(pg, 'clipPath', `inset(0 0 ${(100 * (1 - t)).toFixed(2)}% 0)`);
+      css(pg, 'transform', `translateY(${((1 - t) * 40).toFixed(2)}px)`); });
+    [K.pt0, K.pt1].forEach((el, k) => css(el, 'clipPath', `inset(0 ${(100 * (1 - seg(c, .86 + k * .015, .88 + k * .015, out))).toFixed(2)}% 0 0)`));
+
+    // end card
+    rise(W.end, p, .91, .01, .03);
+    const s1 = seg(p, .94, .96, out), s2 = seg(p, .95, .97, out);
+    css(K.ksub, 'opacity', s1); css(K.ksub, 'transform', `translateY(${20 * (1 - s1)}px)`);
+    css(K.kcta, 'opacity', s2); css(K.kcta, 'transform', `translateY(${20 * (1 - s2)}px)`);
+    vis(K.kend, p > .905); K.kend.inert = s2 < .5;
+
+    // narration strip
+    const idx = STEPS.findIndex(([a0, b0]) => c >= a0 && c < b0), at = c >= .9 ? 3 : idx;
+    steps.forEach((li, k) => { cls(li, 'on', k === at); css($('i', li), 'transform', `scaleX(${clamp((c - STEPS[k][0]) / (STEPS[k][1] - STEPS[k][0]))})`); });
+    txt(now, at < 0 ? '' : $('.t', steps[at]).textContent);
+  }
+
+  if (reduce) {  // no scrubbing: a still of the app mid-task under the copy
+    reel.classList.add('still');
+    const still = () => { layout(); render(0, .6); };
+    still(); addEventListener('resize', still); document.fonts?.ready.then(still);
+    return;
+  }
+  let cur = 0, target = 0, raf = 0, last = 0;
+  const measure = () => { const r = reel.getBoundingClientRect(); target = clamp((HEAD - r.top) / (r.height - stage.offsetHeight)); };
+  const tick = t => {  // ease toward the scroll position so wheel steps glide; time-based, so 60Hz and 120Hz feel the same
+    const dt = Math.min(64, t - (last || t - 16)); last = t;
+    cur += (target - cur) * (1 - Math.exp(-dt / 90)); if (Math.abs(target - cur) < .0004) cur = target;
+    render(cur); raf = cur === target ? (last = 0) : requestAnimationFrame(tick);
+  };
+  const onScroll = () => { measure(); if (!raf) raf = requestAnimationFrame(tick); };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', () => { layout(); measure(); cur = target; render(cur); });
+  document.fonts?.ready.then(() => { layout(); render(cur); });
+  layout(); measure(); cur = target; render(cur);
+})();
 
 // ---- checkout
 const buy = $('#buy-f');
