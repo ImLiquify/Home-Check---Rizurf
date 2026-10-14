@@ -156,6 +156,11 @@
   .feat li .ic { margin-top: 3px; color: var(--accent); }
   .feat li.no, .feat li.no .ic { color: var(--muted); }
   .plan .btn { width: 100%; }
+  .deal { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: var(--r-card); padding: 18px 20px; margin: 0 0 12px; }
+  .deal .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .deal b { font-size: 20px; }
+  .deal .badge, .choose .badge { background: var(--accent); color: var(--accent-ink); }
+  .deal p { margin: 4px 0 14px; color: var(--text); font-size: 15px; }
 
   /* checkout */
   .checkout { max-width: 880px; margin: 48px auto 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
@@ -173,7 +178,8 @@
   @keyframes pane { from { opacity: 0; transform: translateX(16px); } }
   .pane h3 { font-size: 22px; font-weight: 650; }
   .pane .sub { color: var(--muted); margin: 6px 0 24px; }
-  .choose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .choose { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .choose .badge { display: table; margin-top: 6px; font-size: 12px; }
   .choose label { display: block; cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 16px 18px; transition: border-color .2s, background .2s; }
   .choose > div { position: relative; }
   .choose input { position: absolute; inset: 0; margin: 0; opacity: 0; pointer-events: none; }
@@ -459,8 +465,8 @@
           <a class="btn btn-ghost" href="#buy" data-plan="lite">Buy Lite</a>
         </div>
         <div class="plan pro reveal" style="--d:.08s">
-          <h3>Pro <span class="badge">Recommended</span></h3>
-          <div class="price">RM 599 <small>/ computer</small></div>
+          <h3>Pro</h3>
+          <div class="price">RM 399 <small>/ computer</small></div>
           <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Pro output: the formatted Summary page"><figcaption>Pro output: the full report, ready to send to your client.</figcaption></figure>
           <ul class="feat">
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Lite</li>
@@ -469,7 +475,12 @@
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Zoom into photos, play videos in the app</li>
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>New modules as they launch</li>
           </ul>
-          <a class="btn btn-primary" href="#buy" data-plan="pro">Buy Pro</a>
+          <div class="deal">
+            <div class="top"><b>2 Pro keys: RM 599</b><span class="badge">Best value</span></div>
+            <p>Two computers for RM 299.50 each. You save RM 199.</p>
+            <a class="btn btn-primary" href="#buy" data-plan="pro2">Buy 2 keys</a>
+          </div>
+          <a class="btn btn-ghost" href="#buy" data-plan="pro">Buy 1 Pro key</a>
         </div>
       </div>
     </div>
@@ -491,7 +502,8 @@
             <h3>Choose your plan</h3>
             <p class="sub">Step 1 of 4. One key activates one computer.</p>
             <div class="choose" role="radiogroup" aria-label="Plan">
-              <div><input type="radio" name="plan" id="p-pro" value="pro" checked><label for="p-pro"><b>Pro</b><span>RM 599, full formatted report</span></label></div>
+              <div><input type="radio" name="plan" id="p-pro2" value="pro2"><label for="p-pro2"><b>Pro, 2 keys</b><span>RM 599, two computers</span><span class="badge">Best value</span></label></div>
+              <div><input type="radio" name="plan" id="p-pro" value="pro" checked><label for="p-pro"><b>Pro</b><span>RM 399, full formatted report</span></label></div>
               <div><input type="radio" name="plan" id="p-lite" value="lite"><label for="p-lite"><b>Lite</b><span>RM 199, ready-made layout</span></label></div>
             </div>
             <div class="row2">
@@ -510,7 +522,7 @@
               <img class="qr" src="tng-qr.png" width="260" height="260" alt="Touch 'n Go payment QR code" onerror="this.outerHTML='<p><b>QR coming soon.</b> Email us to pay.</p>'">
               <div>
                 <div class="amount-lbl">Amount to pay</div>
-                <div class="amount" data-amount>RM 599</div>
+                <div class="amount" data-amount>RM 399</div>
                 <ol class="pay-steps">
                   <li>Open TNG eWallet and tap <b>Scan</b>.</li>
                   <li>Scan this QR and enter the amount above exactly.</li>
@@ -529,7 +541,7 @@
               <span class="hint" id="buy-ref-h">Shown on your TNG receipt as Transaction No. or Reference No.</span><span class="err" id="buy-ref-e"></span></div>
             <div style="margin-top:20px">
               <div class="summary-row"><span>Plan</span><b data-plan-name>Pro</b></div>
-              <div class="summary-row"><span>Amount paid</span><b data-amount>RM 599</b></div>
+              <div class="summary-row"><span>Amount paid</span><b data-amount>RM 399</b></div>
               <div class="summary-row"><span>Key sent to</span><b data-email></b></div>
             </div>
             <div class="agree"><input type="checkbox" id="buy-terms" name="terms" value="v1" aria-describedby="buy-terms-e">
@@ -602,7 +614,7 @@
         <details class="q"><summary>How long does payment confirmation take?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
           <p>We check every TNG payment by hand, usually within the same day. You get an order email right away and your key as soon as it is confirmed.</p></details>
         <details class="q"><summary>Can I use one licence on two computers?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
-          <p>No. Each key activates one computer. Buy one key per computer, and email us if you need to move a key to a new PC.</p></details>
+          <p>No. Each key activates one computer. For two computers, the 2-key Pro deal is RM 599 instead of RM 798. Email us if you need to move a key to a new PC.</p></details>
         <details class="q"><summary>What happens when the trial ends?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
           <p>The app asks for a licence key. Reports you already made are normal Excel files and stay on your computer.</p></details>
         <details class="q"><summary>Can I upgrade from Lite to Pro later?<svg class="ic" aria-hidden="true"><use href="#i-caret-down"/></svg></summary>
@@ -625,7 +637,8 @@
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye3D5vpUQ9OGdogUl9ayOGtfGpGYrDSSNH1WrPQaOj4GM9Zds4MNT0qzVckpPzrTi1ow/exec";  // EDIT: Apps Script Web app URL (ends in /exec)
-const PRICES = { pro: 'RM 599', lite: 'RM 199' };
+const PRICES = { lite: 'RM 199', pro: 'RM 399', pro2: 'RM 599' };  // keep in sync with server/Code.gs
+const PLAN_NAMES = { lite: 'Lite', pro: 'Pro', pro2: 'Pro, 2 keys' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 // Apps Script answers cross-origin; if a browser blocks reading the answer we still send it blind.
@@ -650,7 +663,7 @@ function plan() { return $('input[name=plan]:checked', buy).value; }
 function sync() {
   const p = plan();
   $$('[data-amount]').forEach(el => el.textContent = PRICES[p]);
-  $$('[data-plan-name]').forEach(el => el.textContent = p === 'pro' ? 'Pro' : 'Lite');
+  $$('[data-plan-name]').forEach(el => el.textContent = PLAN_NAMES[p]);
   $$('[data-email]').forEach(el => el.textContent = $('#buy-email').value.trim());
 }
 function show(n) {
