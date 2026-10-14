@@ -142,25 +142,23 @@
   .pill.now { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 
   /* pricing */
-  .plans { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; margin-top: 48px; align-items: start; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; align-items: stretch; }
   .plan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 30px; transition: transform .3s var(--ease), box-shadow .3s; }
   .plan:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-  .plan.pro { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+  .plan.best { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+  .plan .save { margin: 6px 0 0; color: var(--accent); font-weight: 600; }
   .plan h3 { font-size: 22px; font-weight: 650; display: flex; align-items: center; gap: 10px; }
   .badge { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
   .price { font-size: 42px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 0; }
-  .price small { font-size: 15px; font-weight: 400; color: var(--muted); }
+  .price small { font-size: 15px; font-weight: 400; color: var(--muted); white-space: nowrap; }
   .plan .shot { margin: 20px 0; box-shadow: none; }
   .feat { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; }
   .feat li { display: flex; gap: 10px; align-items: flex-start; }
   .feat li .ic { margin-top: 3px; color: var(--accent); }
   .feat li.no, .feat li.no .ic { color: var(--muted); }
-  .plan .btn { width: 100%; }
-  .deal { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: var(--r-card); padding: 18px 20px; margin: 0 0 12px; }
-  .deal .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .deal b { font-size: 20px; }
-  .deal .badge, .choose .badge { background: var(--accent); color: var(--accent-ink); }
-  .deal p { margin: 4px 0 14px; color: var(--text); font-size: 15px; }
+  .plan { display: flex; flex-direction: column; }
+  .plan .btn { width: 100%; margin-top: auto; }  /* buttons line up along the bottom of the three cards */
+  .plan.best .badge, .choose .badge { background: var(--accent); color: var(--accent-ink); }
 
   /* checkout */
   .checkout { max-width: 880px; margin: 48px auto 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
@@ -464,23 +462,30 @@
           </ul>
           <a class="btn btn-ghost" href="#buy" data-plan="lite">Buy Lite</a>
         </div>
-        <div class="plan pro reveal" style="--d:.08s">
+        <div class="plan reveal" style="--d:.08s">
           <h3>Pro</h3>
           <div class="price">RM 399 <small>/ computer</small></div>
           <figure class="shot"><img src="img/report-summary.webp" width="1051" height="644" loading="lazy" alt="Pro output: the formatted Summary page"><figcaption>Pro output: the full report, ready to send to your client.</figcaption></figure>
           <ul class="feat">
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Lite</li>
-                        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Your company's report layout, learned from a past report</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Your company's report layout, learned from a past report</li>
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Check date read from your photos</li>
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Zoom into photos, play videos in the app</li>
             <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>New modules as they launch</li>
           </ul>
-          <div class="deal">
-            <div class="top"><b>2 Pro keys: RM 599</b><span class="badge">Best value</span></div>
-            <p>Two computers for RM 299.50 each. You save RM 199.</p>
-            <a class="btn btn-primary" href="#buy" data-plan="pro2">Buy 2 keys</a>
-          </div>
-          <a class="btn btn-ghost" href="#buy" data-plan="pro">Buy 1 Pro key</a>
+          <a class="btn btn-ghost" href="#buy" data-plan="pro">Buy Pro</a>
+        </div>
+        <div class="plan best reveal" style="--d:.16s">
+          <h3>Pro, 2 keys <span class="badge">Best value</span></h3>
+          <div class="price">RM 599 <small>/ 2 PCs</small></div>
+          <p class="save">RM 299.50 per computer. You save RM 199.</p>
+          <ul class="feat" style="margin-top:20px">
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything in Pro, on two computers</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Two licence keys in one email</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Each key activates its own computer</li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>New modules as they launch, on both</li>
+          </ul>
+          <a class="btn btn-primary" href="#buy" data-plan="pro2">Buy 2 keys</a>
         </div>
       </div>
     </div>
