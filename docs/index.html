@@ -298,8 +298,8 @@
   </div>
 </dialog>
 <script>
-  (function () {  // terms gate: 'v1' must match TERMS in server/Code.gs, so new terms ask everyone again
-    var KEY = 'unitly-terms', VERSION = 'v1', gate = document.getElementById('gate'), agreed = null;
+  (function () {  // terms gate: bump with each new terms version, so new terms ask everyone again
+    var KEY = 'unitly-terms', VERSION = 'v2', gate = document.getElementById('gate'), agreed = null;
     try { agreed = localStorage.getItem(KEY); } catch (e) {}
     if (agreed === VERSION || !gate.showModal) return;
     function reopen() {  // Esc can't skip it: Chrome may close the dialog even when told not to, so open it again
