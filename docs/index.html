@@ -1066,75 +1066,18 @@ $$('.reveal').forEach(el => io.observe(el));
     still(); addEventListener('resize', still); document.fonts?.ready.then(still);
     return;
   }
-  // Pacing: the timeline pauses at each beat for a stretch of scroll (HOLDS, in screens) so text stays up long enough
-  // to read, and inside the reel the page scrolls at one capped speed however hard the wheel, finger or keys push.
-  const SPEED = .7;  // screens per second while the reel is pinned
-  const ANIM = 5, HOLDS = [[.13, .9], [.345, .7], [.61, .6], [.715, .6], [.77, .4], [.895, .6], [.97, .6]];  // [timeline p, screens]
-  const knots = [[0, 0]]; let U = 0, prev = 0;  // scroll position in screens -> timeline p
-  HOLDS.forEach(([hp, h]) => { U += (hp - prev) * ANIM; knots.push([U, hp]); U += h; knots.push([U, hp]); prev = hp; });
-  U += (1 - prev) * ANIM; knots.push([U, 1]);
-  const warp = u => { for (let k = 1; k < knots.length; k++) { const [u0, p0] = knots[k - 1], [u1, p1] = knots[k];
-    if (u <= u1) return u1 === u0 ? p0 : p0 + (p1 - p0) * (u - u0) / (u1 - u0); } return 1; };
-  reel.style.height = `calc(${U + 1} * 100svh - ${HEAD}px)`;  // stage is 100svh - header, so U screens of travel
-
   let cur = 0, target = 0, raf = 0, last = 0;
-  const measure = () => { const r = reel.getBoundingClientRect(); target = clamp((HEAD - r.top) / (r.height - stage.offsetHeight)) * U; };
-  const tick = t => {  // glide the animation toward the scroll position; time-based, so 60Hz and 120Hz match
+  const measure = () => { const r = reel.getBoundingClientRect(); target = clamp((HEAD - r.top) / (r.height - stage.offsetHeight)); };
+  const tick = t => {  // ease toward the scroll position so wheel steps glide; time-based, so 60Hz and 120Hz feel the same
     const dt = Math.min(64, t - (last || t - 16)); last = t;
-    const cap = (target > 0 && target < U ? SPEED * 1.5 : 6) * dt / 1000;  // scrollbar drags and anchor jumps can't outrun it either
-    cur += Math.max(-cap, Math.min(cap, (target - cur) * (1 - Math.exp(-dt / 90))));
-    if (Math.abs(target - cur) < .002) cur = target;
-    render(warp(cur)); raf = cur === target ? (last = 0) : requestAnimationFrame(tick);
+    cur += (target - cur) * (1 - Math.exp(-dt / 90)); if (Math.abs(target - cur) < .0004) cur = target;
+    render(cur); raf = cur === target ? (last = 0) : requestAnimationFrame(tick);
   };
   const onScroll = () => { measure(); if (!raf) raf = requestAnimationFrame(tick); };
   addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', () => { layout(); measure(); cur = target; render(warp(cur)); });
-  document.fonts?.ready.then(() => { layout(); render(warp(cur)); });
-  layout(); measure(); cur = target; render(warp(cur));
-
-  // Capped scrolling: input inside the reel feeds a short queue that drains at SPEED, easing in and out.
-  // At either end of the reel the queue is dropped and the browser's own scrolling takes over.
-  const gate = $('#gate');
-  let pend = 0, vel = 0, sraf = 0, slast = 0;
-  const zone = () => { const a = reel.getBoundingClientRect().top + scrollY - HEAD; return [a, a + reel.offsetHeight - stage.offsetHeight]; };
-  const inZone = dir => { const [a, b] = zone(), y = scrollY; return dir > 0 ? y >= a - 1 && y < b - .5 : y > a + .5 && y <= b + 1; };
-  const feed = (d, max = innerHeight * .3) => {  // a wheel flick queues at most a third of a screen, so stopping feels prompt
-    if (!d || gate.open || !inZone(Math.sign(d))) return false;
-    if (Math.sign(d) !== Math.sign(pend)) vel = 0;  // reversing: stop, then go the other way
-    pend = Math.max(-max, Math.min(max, Math.sign(d) === Math.sign(pend) ? pend + d : d));
-    if (!sraf) sraf = requestAnimationFrame(drive);
-    return true;
-  };
-  const drive = t => {
-    const dt = Math.min(64, t - (slast || t - 16)); slast = t;
-    const want = Math.sign(pend) * Math.min(SPEED * innerHeight / 1000, Math.abs(pend) * .006);  // px/ms, slowing over the last stretch
-    vel += (want - vel) * (1 - Math.exp(-dt / 80));
-    const step = Math.abs(vel * dt) > Math.abs(pend) ? pend : vel * dt;
-    const [a, b] = zone(), y = scrollY, to = Math.max(a, Math.min(b, y + step));
-    pend -= step;
-    if ((step > 0 && to >= b) || (step < 0 && to <= a)) pend = vel = 0;  // reached the end of the reel
-    scrollTo({ top: to, behavior: 'instant' });
-    if (Math.abs(pend) < .5 && Math.abs(vel) < .02) { pend = vel = sraf = slast = 0; return; }
-    sraf = requestAnimationFrame(drive);
-  };
-  addEventListener('wheel', e => {
-    if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;  // pinch-zoom and sideways scrolling stay native
-    if (feed(e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1))) e.preventDefault();
-  }, { passive: false });
-  let ty = null, tt = 0, tv = 0;
-  addEventListener('touchstart', e => { ty = e.touches[0].clientY; tt = e.timeStamp; tv = 0; }, { passive: true });
-  addEventListener('touchmove', e => {
-    if (ty == null || e.touches.length > 1) return;
-    const y = e.touches[0].clientY, d = ty - y;
-    if (e.cancelable && feed(d)) { e.preventDefault(); tv = d / Math.max(1, e.timeStamp - tt); }
-    ty = y; tt = e.timeStamp;
-  }, { passive: false });
-  addEventListener('touchend', () => { if (ty != null && tv) feed(tv * 250); ty = null; }, { passive: true });  // a flick carries on, at the same pace
-  addEventListener('keydown', e => {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.target.closest('input, textarea, select, button, [contenteditable]')) return;
-    const h = innerHeight * .85, d = { ArrowDown: 80, ArrowUp: -80, PageDown: h, PageUp: -h, ' ': e.shiftKey ? -h : h }[e.key];
-    if (d && feed(d, Math.abs(d))) e.preventDefault();  // a key press moves its whole distance, still at the capped pace
-  });
+  addEventListener('resize', () => { layout(); measure(); cur = target; render(cur); });
+  document.fonts?.ready.then(() => { layout(); render(cur); });
+  layout(); measure(); cur = target; render(cur);
 })();
 
 // ---- checkout
