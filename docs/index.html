@@ -139,74 +139,107 @@
   html:not(.js) .reel-canvas, html:not(.js) .reel-steps, html:not(.js) .kin, html:not(.js) .k-end, html:not(.js) .wipe { display: none; }
   .reel.still .reel-stage { position: relative; }
 
-  /* the mock window: the real Pro app's colours, labels and layout */
-  .app { position: absolute; left: 50px; top: 40px; width: 1100px; height: 720px; display: flex; flex-direction: column;
-         background: #F1F5F9; color: #0F172A; font: 14px/1.4 "Segoe UI", system-ui, sans-serif; text-align: left;
-         border: 1px solid #CBD5E1; border-radius: 10px; overflow: hidden; will-change: transform;
+  /* the mock window: the real app's layout, colours (light, and the warm-grey dark mode) and Windows icons */
+  .app { --a-surface: #FFFFFF; --a-side: #F4F7F7; --a-line: #E2E8EA; --a-field: #FFFFFF; --a-text: #0E1A1F; --a-muted: #5B6B72;
+         --a-primary: #0F766E; --a-primary-h: #115E59; --a-on: #FFFFFF; --a-hover: #EEF3F3; --a-sel: #E1F0EE;
+         --a-viewer: #0B1215; --a-vtext: #93A7AE; --a-frame: #CBD5E1;
+         position: absolute; left: 50px; top: 40px; width: 1100px; height: 720px; display: flex; flex-direction: column;
+         background: var(--a-surface); color: var(--a-text); font: 13px/1.35 "Geist", system-ui, sans-serif; text-align: left;
+         border: 1px solid var(--a-frame); border-radius: 10px; overflow: hidden; will-change: transform;
          box-shadow: 0 50px 90px -40px rgb(15 23 42 / .55); }
+  @media (prefers-color-scheme: dark) {
+    .app { --a-surface: #262624; --a-side: #1F1E1D; --a-line: #3A3936; --a-field: #1F1E1D; --a-text: #ECEBE6; --a-muted: #A3A097;
+           --a-primary: #2BB3A3; --a-primary-h: #3CC6B6; --a-on: #062320; --a-hover: #30302E; --a-sel: #1C3532;
+           --a-viewer: #141413; --a-vtext: #A3A097; --a-frame: #3A3936; box-shadow: 0 50px 90px -40px rgb(0 0 0 / .8); }
+  }
   .app * { box-sizing: border-box; }
-  .a-title { height: 32px; flex: none; display: flex; align-items: center; gap: 8px; padding-left: 12px; background: #fff; font-size: 12px; }
+  .ai { width: 16px; height: 16px; flex: none; }
+  .a-title { height: 32px; flex: none; display: flex; align-items: center; gap: 8px; padding-left: 12px; font-size: 12px; border-bottom: 1px solid var(--a-line); }
   .a-win { margin-left: auto; display: flex; }
-  .a-win svg { width: 46px; height: 32px; padding: 11px 18px; stroke: #0F172A; stroke-width: 1; fill: none; }
-  .a-head { height: 62px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: #fff; }
-  .a-brand { display: flex; align-items: center; gap: 10px; margin-right: 10px; font-size: 21px; font-weight: 600; }
-  .a-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 14px; background: #fff;
-           border: 1px solid #CBD5E1; border-radius: 3px; font-size: 13.5px; white-space: nowrap; }
-  .a-btn.on { background: #E2E8F0; border-color: #0F766E; }
-  .a-primary { background: #0F766E; border-color: #0F766E; color: #fff; font-weight: 600; }
-  .a-primary.on { background: #134E4A; border-color: #134E4A; }
-  .a-primary.off { background: #E2E8F0; border-color: #E2E8F0; color: #64748B; }
-  .a-path { font-size: 12.5px; color: #64748B; } .a-path.set { color: #000; }
-  .a-badge { margin-left: auto; padding: 4px 9px; background: #0F766E; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
-  .a-accent { height: 3px; flex: none; background: #0F766E; }
-  .a-page { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; }
-  .a-card { background: #fff; border: 1px solid #E2E8F0; }
-  .a-details { flex: none; padding: 10px 16px 12px; }
-  .a-sec { font-size: 10.5px; font-weight: 600; letter-spacing: .05em; color: #64748B; }
-  .a-fields { display: flex; gap: 16px; margin-top: 6px; }
-  .a-fields > div { display: grid; gap: 3px; font-size: 12px; color: #64748B; }
-  .a-in { display: flex; align-items: center; justify-content: space-between; width: 150px; height: 30px; padding: 0 8px;
-          border: 1px solid #CBD5E1; color: #0F172A; font-size: 13px; }
-  .a-in.wide { width: 220px; }
-  .a-in.dd::after { content: ""; border: 4px solid transparent; border-top: 5px solid #64748B; margin-top: 5px; }
-  .a-date { display: flex; align-items: center; height: 30px; font-size: 13px; font-weight: 600; color: #0F172A; }
-  .a-body { flex: 1; min-height: 0; display: flex; gap: 12px; }
-  .a-left { width: 300px; flex: none; display: flex; flex-direction: column; padding: 10px 6px 10px 12px; }
-  .a-bar { height: 6px; margin: 7px 8px 3px 0; background: #E2E8F0; }
-  .a-bar i { display: block; height: 100%; background: #0F766E; transform-origin: left; transform: scaleX(0); }
-  .a-muted { font-size: 12px; color: #64748B; }
-  .a-tree { position: relative; margin-top: 10px; }
-  .a-sel { position: absolute; left: 0; right: 8px; top: 0; height: 40px; background: #CCFBF1; opacity: 0; }
-  .a-loc { position: relative; height: 30px; display: flex; align-items: center; padding-left: 4px; font-size: 13.5px; font-weight: 600; color: #134E4A; }
-  .a-item { position: relative; height: 40px; display: flex; align-items: center; gap: 8px; padding-left: 16px; font-size: 13px; white-space: nowrap; }
-  .a-th { width: 40px; height: 30px; flex: none; overflow: hidden; background: #E2E8F0; }
-  .a-th img { width: 40px; height: 30px; display: block; }
-  .a-th .zoom { width: 120px; height: 90px; max-width: none; }
-  .a-item .n { width: 14px; text-align: right; }
-  .a-item .tick { width: 12px; color: #0F766E; font-weight: 700; }
-  .a-legend { margin-top: auto; }
-  .a-right { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 14px 18px; }
+  .a-win svg { width: 46px; height: 32px; padding: 11px 18px; stroke: var(--a-text); stroke-width: 1; fill: none; }
+  .a-head { height: 56px; flex: none; display: flex; align-items: center; gap: 4px; padding: 0 20px; border-bottom: 1px solid var(--a-line); }
+  .a-brand { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+  .a-brand small { font-size: 13px; font-weight: 400; color: var(--a-muted); }
+  .a-vr { width: 1px; height: 28px; margin: 0 16px 0 20px; background: var(--a-line); }
+  .a-tbtn { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 8px; white-space: nowrap; }
+  .a-tbtn.on { background: var(--a-hover); }
+  .a-folder { color: var(--a-primary); font-weight: 600; } .a-folder .ai { width: 18px; height: 18px; }
+  .a-folder.set { color: var(--a-text); }
+  .a-gap { flex: 1; }
+  .a-muted { color: var(--a-muted); }
+  .a-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 16px; border-radius: 8px;
+           border: 1px solid var(--a-line); background: var(--a-surface); white-space: nowrap; }
+  .a-btn .ai { width: 14px; height: 14px; }
+  .a-btn.on { background: var(--a-hover); border-color: var(--a-primary); }
+  .a-primary { background: var(--a-primary); border-color: var(--a-primary); color: var(--a-on); font-weight: 600; }
+  .a-primary.on { background: var(--a-primary-h); border-color: var(--a-primary-h); }
+  .a-primary.off { background: var(--a-hover); border-color: var(--a-hover); color: var(--a-muted); }
+  .a-strip { flex: none; display: flex; align-items: flex-end; gap: 14px; padding: 10px 20px 14px; border-bottom: 1px solid var(--a-line); }
+  .a-strip > div { display: grid; gap: 4px; font-size: 12px; color: var(--a-muted); }
+  .a-in { display: flex; align-items: center; justify-content: space-between; width: 150px; height: 34px; padding: 0 10px; border-radius: 8px;
+          border: 1px solid var(--a-line); background: var(--a-field); color: var(--a-text); font-size: 13px; }
+  .a-in.wide { width: 210px; }
+  .a-in .ai { width: 12px; height: 12px; color: var(--a-muted); }
+  .a-date { display: flex; align-items: center; gap: 6px; height: 34px; font-size: 13px; font-weight: 600; color: var(--a-text); }
+  .a-date .ai { color: var(--a-muted); }
+  .a-body { flex: 1; min-height: 0; display: flex; }
+  .a-left { width: 300px; flex: none; display: flex; flex-direction: column; background: var(--a-side); border-right: 1px solid var(--a-line); }
+  .a-lt { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 18px 8px; font-weight: 600; }
+  .a-lt span { font-weight: 400; font-size: 12px; color: var(--a-muted); }
+  .a-bar { height: 2px; margin: 0 18px 8px; background: var(--a-line); }
+  .a-bar i { display: block; height: 100%; background: var(--a-primary); transform-origin: left; transform: scaleX(0); }
+  .a-tree { position: relative; padding: 0 8px; }
+  .a-sel { position: absolute; left: 8px; right: 8px; top: 0; height: 50px; background: var(--a-sel); border-radius: 4px; opacity: 0; }
+  .a-loc { position: relative; height: 34px; display: flex; align-items: center; gap: 6px; padding-left: 2px; font-weight: 600; }
+  .a-loc .tri { width: 8px; height: 8px; color: var(--a-muted); }
+  .a-loc .ai { width: 18px; height: 18px; color: var(--a-muted); }
+  .a-item { position: relative; height: 50px; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 10px; white-space: nowrap; }
+  .a-item .n { width: 18px; text-align: right; color: var(--a-muted); }
+  .a-item.done .n { color: var(--a-text); }
+  .a-th { width: 56px; height: 42px; flex: none; overflow: hidden; border-radius: 4px; background: var(--a-line); }
+  .a-th img { width: 56px; height: 42px; display: block; object-fit: cover; }
+  .a-th .zoom { width: 150px; height: 112px; max-width: none; }
+  .a-item .lbl { overflow: hidden; text-overflow: ellipsis; color: var(--a-muted); }
+  .a-item.done .lbl { color: var(--a-text); }
+  .a-item .ok { margin-left: auto; width: 18px; height: 18px; color: var(--a-primary); opacity: 0; }
+  .a-item.done .ok { opacity: 1; }
+  .a-legend { margin-top: auto; display: flex; gap: 16px; padding: 6px 18px 14px; font-size: 12px; color: var(--a-muted); }
+  .a-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .a-legend .ai { width: 13px; height: 13px; } .a-legend .okc { color: var(--a-primary); }
+  .a-right { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 16px 26px 18px; }
+  .a-tr { display: flex; align-items: baseline; gap: 12px; }
   .a-h { font-size: 20px; font-weight: 600; line-height: 1.3; }
-  .a-meta { margin-top: 2px; }
-  .a-view { position: relative; flex: 1; min-height: 0; margin-top: 10px; background: #1E293B; overflow: hidden; }
-  .a-empty { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; text-align: center; color: #CBD5E1; font-size: 13px; }
+  .a-meta { font-size: 13px; }
+  .a-view { position: relative; flex: 1; min-height: 0; margin-top: 12px; background: var(--a-viewer); border-radius: 8px; overflow: hidden; }
+  .a-empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; color: var(--a-vtext); font-size: 13px; }
+  .a-empty .ai { width: 44px; height: 44px; margin-bottom: 10px; }
   .a-photo { position: absolute; inset: 0; margin: auto; height: 100%; width: auto; max-width: 100%; opacity: 0; }
-  .a-hint { margin-top: 6px; }
-  .a-def { margin-top: 12px; font-size: 13px; font-weight: 600; }
-  .a-input { display: flex; align-items: center; height: 38px; margin-top: 4px; padding: 0 10px; border: 1px solid #CBD5E1; background: #fff; font-size: 15px; white-space: pre; }
-  .a-input.focus { border-color: #0F766E; box-shadow: inset 0 0 0 1px #0F766E; }
-  .a-caret { width: 1.5px; height: 20px; margin-left: 1px; background: #0F172A; opacity: 0; }
+  .a-dr { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px; font-weight: 600; }
+  .a-info { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px 5px 10px; border-radius: 8px; background: var(--a-hover);
+            font-size: 12px; font-weight: 400; color: var(--a-muted); white-space: nowrap; }
+  .a-info > .ai { width: 14px; height: 14px; margin-right: 4px; }
+  .kc { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--a-line);
+        background: var(--a-surface); color: var(--a-text); font-size: 11px; font-weight: 600; transition: background-color .15s, color .15s; }
+  .kc .ai { width: 11px; height: 11px; }
+  .kc.flash { background: var(--a-primary); border-color: var(--a-primary); color: var(--a-on); }
+  .a-info .t { margin: 0 8px 0 2px; }
+  .a-input { display: flex; align-items: center; height: 42px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--a-line);
+             background: var(--a-field); font-size: 15px; white-space: pre; }
+  .a-input.focus { border-color: var(--a-primary); box-shadow: inset 0 0 0 1px var(--a-primary); }
+  .a-caret { width: 1.5px; height: 20px; margin-left: 1px; background: var(--a-text); opacity: 0; }
   .a-caret.on { opacity: 1; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
+  .a-ph { display: none; margin-left: 6px; color: var(--a-muted); }
+  [data-k="cap"]:empty ~ .a-ph { display: inline; }
   .a-nav { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-  .a-keys { margin-left: auto; transition: color .2s; } .a-keys.flash { color: #0F766E; font-weight: 600; }
-  .a-dialog { position: absolute; left: 350px; top: 270px; width: 400px; background: #fff; border: 1px solid #CBD5E1; font-size: 13px;
-              box-shadow: 0 30px 60px -24px rgb(15 23 42 / .5); opacity: 0; }
+  .a-nav .a-info { margin-left: auto; }
+  .a-dialog { position: absolute; left: 350px; top: 270px; width: 400px; background: var(--a-surface); border: 1px solid var(--a-frame); border-radius: 8px;
+              overflow: hidden; font-size: 13px; box-shadow: 0 30px 60px -24px rgb(15 23 42 / .5); opacity: 0; }
   .a-dt { display: flex; justify-content: space-between; align-items: center; height: 32px; padding: 0 14px; font-size: 12px; }
   .a-db { display: flex; gap: 14px; padding: 10px 20px 18px; }
-  .a-db .q { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #0F766E; color: #fff; font-weight: 700; }
+  .a-db .q { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--a-primary); color: var(--a-on); font-weight: 700; }
   .a-db p { margin: 0; line-height: 1.5; }
-  .a-df { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: #F1F5F9; }
+  .a-df { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; background: var(--a-side); }
   .a-df .a-btn { min-width: 84px; }
   .page { position: absolute; margin: 0; background: #fff; border: 1px solid #CBD5E1; opacity: 0;
           box-shadow: 0 40px 70px -36px rgb(15 23 42 / .55); }
@@ -220,11 +253,11 @@
   /* in-app cursor, click ripple and callouts (app coordinates, so they ride the window's transform) */
   .cur { position: absolute; left: 0; top: 0; width: 22px; height: 30px; z-index: 6; opacity: 0; overflow: visible; transform-origin: 1px 1px; }
   .cur path { fill: #0F172A; stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; }
-  .ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; z-index: 5; border: 2px solid #0F766E; border-radius: 50%; opacity: 0; }
+  .ripple { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; z-index: 5; border: 2px solid var(--a-primary); border-radius: 50%; opacity: 0; }
   .co-svg { position: absolute; left: 0; top: 0; z-index: 4; overflow: visible; pointer-events: none; }
-  .co-svg path { fill: none; stroke: #0F766E; stroke-width: 2; }
-  .co-svg circle { fill: #0F766E; opacity: 0; }
-  .co-tag { position: absolute; left: 0; top: 0; z-index: 4; transform: translateY(-50%); padding: 7px 12px; background: #0F766E; color: #fff;
+  .co-svg path { fill: none; stroke: var(--a-primary); stroke-width: 2; }
+  .co-svg circle { fill: var(--a-primary); opacity: 0; }
+  .co-tag { position: absolute; left: 0; top: 0; z-index: 4; transform: translateY(-50%); padding: 7px 12px; background: var(--a-primary); color: var(--a-on);
             font: 600 15px/1.2 "Geist", system-ui, sans-serif; white-space: nowrap; clip-path: inset(0 100% 0 0); }
   .co-tag.r { transform: translate(-100%, -50%); clip-path: inset(0 0 0 100%); }
 
@@ -491,6 +524,21 @@
   <symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
   <symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
   <symbol id="i-minus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></symbol>
+  <!-- mock app icons, drawn to match Segoe Fluent Icons -->
+  <symbol id="m-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></symbol>
+  <symbol id="m-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v4h4"/></symbol>
+  <symbol id="m-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></symbol>
+  <symbol id="m-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="m-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></symbol>
+  <symbol id="m-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="m-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="m-tri" viewBox="0 0 10 10"><path d="M1 3h8L5 8z" fill="currentColor"/></symbol>
+  <symbol id="m-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/></symbol>
+  <symbol id="m-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.2l3 3 6-6.2" fill="none" stroke="var(--a-surface)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="m-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M7 4.5l12 7.5-12 7.5z"/></symbol>
+  <symbol id="m-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></symbol>
+  <symbol id="m-kbd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M10 10h.01M13 10h.01M16 10h.01M7 13.5h.01M17 13.5h.01M9.5 13.5h5"/></symbol>
+  <symbol id="m-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></symbol>
 </svg>
 <a class="skip" href="#main">Skip to content</a>
 
@@ -527,56 +575,48 @@
             <div class="a-title"><img src="logo.svg" width="16" height="16" alt="">Unitly Pro
               <span class="a-win"><svg viewBox="0 0 10 10"><path d="M0 5h10"/></svg><svg viewBox="0 0 10 10"><path d="M.5 .5h9v9h-9z"/></svg><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10"/></svg></span></div>
             <div class="a-head">
-              <span class="a-brand"><img src="logo.svg" width="30" height="30" alt="">Unitly</span>
-              <span class="a-btn" data-k="choose">Choose folder…</span>
-              <span class="a-path" data-k="path">No folder chosen</span>
-              <span class="a-badge">PRO</span>
-              <span class="a-btn">Template: Yours (Excel)</span>
-              <span class="a-btn a-primary off" data-k="gen">Generate Excel</span>
+              <span class="a-brand"><img src="logo.svg" width="24" height="24" alt="">Unitly <small>Pro</small></span>
+              <i class="a-vr"></i>
+              <span class="a-tbtn a-folder" data-k="choose"><svg class="ai"><use href="#m-folder"/></svg><span data-k="path">Open inspection folder</span></span>
+              <span class="a-gap"></span>
+              <span class="a-tbtn a-muted"><svg class="ai"><use href="#m-moon"/></svg></span>
+              <span class="a-tbtn">Template: Yours (Excel) <svg class="ai a-muted" style="width:12px;height:12px"><use href="#m-down"/></svg></span>
+              <span class="a-btn a-primary off" data-k="gen"><svg class="ai"><use href="#m-file"/></svg><span data-k="genT">Generate report</span></span>
             </div>
-            <div class="a-accent"></div>
-            <div class="a-page">
-              <div class="a-card a-details">
-                <div class="a-sec">SUMMARY DETAILS</div>
-                <div class="a-fields">
-                  <div>Conducted by<span class="a-in" data-k="f1"></span></div>
-                  <div>Property type<span class="a-in wide" data-k="f2"></span></div>
-                  <div>Furnishing<span class="a-in dd" data-k="f3">Fully</span></div>
-                  <div>Cleaning condition<span class="a-in dd">Cleaned</span></div>
-                  <div>Check date<span class="a-date" data-k="date">Choose a folder</span></div>
+            <div class="a-strip">
+              <div>Conducted by<span class="a-in" data-k="f1"></span></div>
+              <div>Property type<span class="a-in wide" data-k="f2"></span></div>
+              <div>Furnishing<span class="a-in"><span data-k="f3">Fully</span><svg class="ai"><use href="#m-down"/></svg></span></div>
+              <div>Cleaning condition<span class="a-in"><span>Cleaned</span><svg class="ai"><use href="#m-down"/></svg></span></div>
+              <div>Check date (from the first photo)<span class="a-date"><svg class="ai"><use href="#m-cal"/></svg><span data-k="date">—</span></span></div>
+            </div>
+            <div class="a-body">
+              <div class="a-left">
+                <div class="a-lt">Photos and videos<span data-k="progress"></span></div>
+                <div class="a-bar"><i data-k="bar"></i></div>
+                <div class="a-tree">
+                  <i class="a-sel" data-k="sel"></i>
+                  <div class="a-loc" data-row><svg class="tri"><use href="#m-tri"/></svg><svg class="ai"><use href="#m-folder"/></svg><span class="nm">Bathroom&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
+                  <div class="a-item done" data-row><span class="n">1.</span><span class="a-th"><img class="zoom" style="margin-left:-94px" src="img/photo-door.webp" alt=""></span><span class="lbl">Water stain on ceiling above…</span><svg class="ok"><use href="#m-ok"/></svg></div>
+                  <div class="a-loc" data-row><svg class="tri"><use href="#m-tri"/></svg><svg class="ai"><use href="#m-folder"/></svg><span class="nm">Kitchen&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
+                  <div class="a-item done" data-row><span class="n">1.</span><span class="a-th"><img class="zoom" style="margin-top:-70px" src="img/photo-crack.webp" alt=""></span><span class="lbl">Chipped edge on kitchen coun…</span><svg class="ok"><use href="#m-ok"/></svg></div>
+                  <div class="a-loc" data-row><svg class="tri"><use href="#m-tri"/></svg><svg class="ai"><use href="#m-folder"/></svg><span class="nm">Living Room&nbsp;&nbsp;·&nbsp;&nbsp;2</span></div>
+                  <div class="a-item" data-row data-item><span class="n">1.</span><span class="a-th"><img src="img/photo-crack.webp" alt=""></span><span class="lbl">No defect yet</span><svg class="ok"><use href="#m-ok"/></svg></div>
+                  <div class="a-item" data-row data-item><span class="n">2.</span><span class="a-th"><img src="img/photo-door.webp" alt=""></span><span class="lbl">No defect yet</span><svg class="ok"><use href="#m-ok"/></svg></div>
                 </div>
+                <div class="a-legend"><span><svg class="ai okc"><use href="#m-ok"/></svg>Has a defect</span><span><svg class="ai"><use href="#m-play"/></svg>Video</span></div>
               </div>
-              <div class="a-body">
-                <div class="a-card a-left">
-                  <div class="a-sec">PHOTOS &amp; VIDEOS</div>
-                  <div class="a-bar"><i data-k="bar"></i></div>
-                  <div class="a-muted" data-k="progress">&nbsp;</div>
-                  <div class="a-tree">
-                    <i class="a-sel" data-k="sel"></i>
-                    <div class="a-loc" data-row><span>Living Room&nbsp;&nbsp;·&nbsp;&nbsp;2</span></div>
-                    <div class="a-item" data-row data-item><span class="a-th"><img src="img/photo-crack.webp" alt=""></span><span class="n">1.</span><span class="tick"></span><span class="lbl">IMG_0412.jpg</span></div>
-                    <div class="a-item" data-row data-item><span class="a-th"><img src="img/photo-door.webp" alt=""></span><span class="n">2.</span><span class="tick"></span><span class="lbl">IMG_0415.jpg</span></div>
-                    <div class="a-loc" data-row><span>Bathroom&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
-                    <div class="a-item" data-row><span class="a-th"><img class="zoom" style="margin-left:-80px" src="img/photo-door.webp" alt=""></span><span class="n">1.</span><span class="tick">✓</span><span class="lbl">Water stain on ceiling above…</span></div>
-                    <div class="a-loc" data-row><span>Kitchen&nbsp;&nbsp;·&nbsp;&nbsp;1</span></div>
-                    <div class="a-item" data-row><span class="a-th"><img class="zoom" style="margin-top:-60px" src="img/photo-crack.webp" alt=""></span><span class="n">1.</span><span class="tick">✓</span><span class="lbl">Chipped edge on kitchen coun…</span></div>
-                  </div>
-                  <div class="a-muted a-legend">✓&nbsp;&nbsp;defect filled&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▶&nbsp;&nbsp;video</div>
+              <div class="a-right">
+                <div class="a-tr"><span class="a-h" data-k="title">No folder open</span><span class="a-meta a-muted" data-k="meta">Open the inspection folder: one subfolder per room.</span></div>
+                <div class="a-view">
+                  <div class="a-empty" data-k="empty"><svg class="ai"><use href="#m-photo"/></svg><span>Open an inspection folder to start.</span><span>Unitly shows each photo here, one at a time.</span></div>
+                  <img class="a-photo" data-k="ph0" src="img/photo-crack.webp" width="458" height="343" alt="">
+                  <img class="a-photo" data-k="ph1" src="img/photo-door.webp" width="459" height="343" alt="">
                 </div>
-                <div class="a-card a-right">
-                  <div class="a-h" data-k="title">Choose a folder to start</div>
-                  <div class="a-muted a-meta" data-k="meta">Pick the inspection folder that has one subfolder per room.</div>
-                  <div class="a-view">
-                    <div class="a-empty" data-k="empty"><span>No folder open</span><span>Click “Choose folder…” at the top to load an inspection</span></div>
-                    <img class="a-photo" data-k="ph0" src="img/photo-crack.webp" width="458" height="343" alt="">
-                    <img class="a-photo" data-k="ph1" src="img/photo-door.webp" width="459" height="343" alt="">
-                  </div>
-                  <div class="a-muted a-hint">Scroll on the photo to zoom&nbsp;&nbsp;·&nbsp;&nbsp;drag to move&nbsp;&nbsp;·&nbsp;&nbsp;double-click to fit</div>
-                  <div class="a-def">Defect</div>
-                  <div class="a-input" data-k="input"><span data-k="cap"></span><i class="a-caret" data-k="caret"></i></div>
-                  <div class="a-nav"><span class="a-btn">‹&nbsp;&nbsp;Previous</span><span class="a-btn a-primary" data-k="next">Save &amp; next&nbsp;&nbsp;›</span>
-                    <span class="a-muted a-keys" data-k="keys">Enter = save &amp; next&nbsp;&nbsp;·&nbsp;&nbsp;PgUp / PgDn = previous / next</span></div>
-                </div>
+                <div class="a-dr">Defect<span class="a-info"><svg class="ai"><use href="#m-search"/></svg>Scroll to zoom, drag to move, double-click to fit</span></div>
+                <div class="a-input" data-k="input"><span data-k="cap"></span><i class="a-caret" data-k="caret"></i><span class="a-ph">What's wrong in this photo?&nbsp; e.g. Hairline crack beside the window</span></div>
+                <div class="a-nav"><span class="a-btn"><svg class="ai"><use href="#m-left"/></svg>Previous</span><span class="a-btn a-primary" data-k="next">Save and next<svg class="ai"><use href="#m-right"/></svg></span>
+                  <span class="a-info"><svg class="ai"><use href="#m-kbd"/></svg><span class="kc" data-k="keys">Enter</span><span class="t">save and next</span><span class="kc"><svg class="ai"><use href="#m-up"/></svg></span><span class="kc"><svg class="ai"><use href="#m-down"/></svg></span><span class="kc">PgUp</span><span class="kc">PgDn</span><span class="t">previous / next</span></span></div>
               </div>
             </div>
             <div class="a-dialog" data-k="dlg">
@@ -889,7 +929,7 @@ $$('.reveal').forEach(el => io.observe(el));
   const W = { h1: words('.reel-copy h1'), k1: words('.k1'), click: words('.k-click'), end: words('.k-big') };
   const HEAD = 64, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CAP = ['Hairline crack on wall beside window', 'Door misaligned, uneven gap at top of frame'];
-  const PATH = 'C:\\Inspections\\Unit A-12-3';
+  const PATH = 'Unit A-12-3';
   const STEPS = [[.19, .375], [.375, .64], [.64, .79], [.79, .9]];
 
   // the same curves as the CSS tokens, solved for x
@@ -906,7 +946,7 @@ $$('.reveal').forEach(el => io.observe(el));
   const txt = (el, v) => { if (el._t !== v) { el._t = v; el.textContent = v; } };
   const cls = (el, c, on) => el.classList.toggle(c, !!on);
   const type = (str, t) => str.slice(0, Math.round(str.length * t));
-  const trunc = s => s.length > 30 ? s.slice(0, 29) + '…' : s;  // the app cuts tree labels the same way
+  const trunc = s => s.length > 28 ? s.slice(0, 27) + '…' : s;  // the app cuts tree labels the same way
   const vis = (el, on) => css(el, 'visibility', on ? 'visible' : 'hidden');
   // words rise through their masks from a, staggered; and leave upward from b
   const rise = (els, p, a, st, d, b) => els.forEach((el, k) => {
@@ -931,7 +971,7 @@ $$('.reveal').forEach(el => io.observe(el));
     rowY = items.map(r => r.offsetTop);
     // callouts: check date (tag hangs left) and the room list (tag runs right)
     const [dx, dy] = pos(K.date), a = [dx - K.date.offsetWidth / 2 + 40, dy + 16];
-    const loc = rows[0].firstChild, [lx, ly] = pos(loc), b = [lx + loc.offsetWidth / 2 + 12, ly];  // just past "Living Room · 2"
+    const loc = $('.nm', rows[0]), [lx, ly] = pos(loc), b = [lx + loc.offsetWidth / 2 + 12, ly];  // just past "Bathroom · 1"
     K.cp0.setAttribute('d', `M${a[0]} ${a[1]}V${a[1] + 70}H${a[0] - 56}`);
     K.cp1.setAttribute('d', `M${b[0]} ${b[1]}H${b[0] + 150}`);
     [[K.cd0, a], [K.cd1, b]].forEach(([c, [x, y]]) => { c.setAttribute('cx', x); c.setAttribute('cy', y); });
@@ -977,24 +1017,24 @@ $$('.reveal').forEach(el => io.observe(el));
 
     // camera: push in on the photo and caption box while typing; dim for "One click."; pull away for the end card
     const z = seg(p, .375, .41) * (1 - seg(p, .62, .655)), dk = seg(p, .675, .69, lin) * (1 - seg(p, .73, .75, lin)), e = seg(p, .9, .94);
-    const Z = fit * mix(1, zoom, z) * mix(1, .95, dk) * mix(1, .9, e), fx = mix(600, 756, z), fy = mix(400, 492, z);
+    const Z = fit * mix(1, zoom, z) * mix(1, .95, dk) * mix(1, .9, e), fx = mix(600, 718, z), fy = mix(400, 470, z);
     css(canvas, 'transform', `translate(-50%, -50%) translate(${((600 - fx) * Z).toFixed(1)}px, ${((400 - fy) * Z).toFixed(1)}px) scale(${Z})`);
     css(canvas, 'opacity', (1 - .8 * dk) * (1 - .85 * e));
     css(stepsBox, 'opacity', seg(p, .2, .23, lin) * (1 - seg(p, .89, .91, lin)));
 
     // 01 choose the folder: cursor clicks, path types, rooms drop in, callouts draw
     const pt = seg(c, .255, .285, lin), loaded = c >= .285;
-    txt(K.path, pt ? type(PATH, pt) : 'No folder chosen'); cls(K.path, 'set', pt);
+    txt(K.path, pt ? type(PATH, pt) : 'Open inspection folder'); cls(K.choose, 'set', pt);
     txt(K.f1, loaded ? 'Aiman Hakim' : ''); txt(K.f2, loaded ? 'Condominium' : ''); txt(K.f3, loaded ? 'Partial' : 'Fully');
-    txt(K.date, loaded ? '3 October 2026, 10:15 AM' : 'Choose a folder');
+    txt(K.date, loaded ? '3 October 2026, 10:15 AM' : '—');
     rows.forEach((r, k) => { const t = seg(c, .27 + k * .006, .3 + k * .006, out);
       css(r, 'opacity', t); css(r, 'transform', `translateY(${((1 - t) * 14).toFixed(2)}px)`); });
     css(K.empty, 'opacity', 1 - seg(c, .28, .3, lin));
     const swap = seg(c, .505, .535);
     css(K.ph0, 'opacity', seg(c, .29, .32, lin) * (1 - swap)); css(K.ph0, 'transform', `scale(${mix(1.08, 1, seg(c, .29, .36, out))})`);
     css(K.ph1, 'opacity', swap); css(K.ph1, 'transform', `scale(${mix(1.08, 1, seg(c, .505, .57, out))})`);
-    txt(K.title, loaded ? 'Living Room' : 'Choose a folder to start');
-    txt(K.meta, !loaded ? 'Pick the inspection folder that has one subfolder per room.'
+    txt(K.title, loaded ? 'Living Room' : 'No folder open');
+    txt(K.meta, !loaded ? 'Open the inspection folder: one subfolder per room.'
       : c < .51 ? 'Photo 1 of 2  ·  IMG_0412.jpg' : 'Photo 2 of 2  ·  IMG_0415.jpg');
     css(K.sel, 'opacity', seg(c, .29, .31, lin)); css(K.sel, 'transform', `translateY(${mix(rowY[0], rowY[1], swap)}px)`);
     [0, 1].forEach(k => {
@@ -1011,9 +1051,9 @@ $$('.reveal').forEach(el => io.observe(el));
     const typing = c > .4 && c < .64;
     cls(K.input, 'focus', typing); cls(K.caret, 'on', typing);
     cls(K.keys, 'flash', (c > .49 && c < .52) || (c > .6 && c < .63)); cls(K.next, 'on', c > .49 && c < .505);
-    items.forEach((r, k) => { txt($('.tick', r), done[k] ? '✓' : ''); txt($('.lbl', r), done[k] ? trunc(CAP[k]) : ['IMG_0412.jpg', 'IMG_0415.jpg'][k]); });
+    items.forEach((r, k) => { cls(r, 'done', done[k]); txt($('.lbl', r), done[k] ? trunc(CAP[k]) : 'No defect yet'); });
     css(K.bar, 'transform', `scaleX(${loaded ? filled / 4 : 0})`);
-    txt(K.progress, loaded ? `${filled} of 4 defects filled  ·  viewing ${c < .51 ? 1 : 2}` : '\u00a0');
+    txt(K.progress, loaded ? `${filled} of 4 done` : '');
     [.41, .49, .51].forEach((s0, k) => {
       const i = seg(p, s0, s0 + .02, out), q = seg(p, .615 + k * .006, .635 + k * .006);
       css(stack[k], 'clipPath', `inset(0 ${(100 * (1 - i)).toFixed(2)}% 0 ${(100 * q).toFixed(2)}%)`);
@@ -1022,7 +1062,7 @@ $$('.reveal').forEach(el => io.observe(el));
 
     // 03 generate: click, "One click." slams over a dimmed app, then the app's own Done box
     const gen = c >= .675 && c < .745;
-    cls(K.gen, 'off', !loaded || gen); txt(K.gen, gen ? 'Generating…' : 'Generate Excel');
+    cls(K.gen, 'off', !loaded || gen); txt(K.genT, gen ? 'Generating…' : 'Generate report');
     presses.forEach(([t0, , , el]) => cls(el, 'on', c >= t0 && c < t0 + .013));
     rise(W.click, p, .68, .012, .02, .725);
     css(W.click[1].parentNode, 'transform', `scale(${mix(1.35, 1, seg(p, .692, .712, out))})`);
